@@ -1,0 +1,376 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		118E7B03D9B9F799C88527F1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620056B53323F19CCA107D9E /* ContentView.swift */; };
+		3338A51958DAE9392ECB9D99 /* NextCaltrainWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */; };
+		62EB9BB5B81035B3B5F0903B /* GoodTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A6E573FE7C571888FE5B0 /* GoodTimes.swift */; };
+		8EF40FA02F81CCCB4097FED4 /* CaltrainSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A03E72E20A6FF3165A4B3624 /* CaltrainSchedule.swift */; };
+		A4D850941E98740A8AA9D750 /* CaltrainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D9023B759EF619FE866CC3 /* CaltrainService.swift */; };
+		E48BFFC549DC1A5660CF36B4 /* NextCaltrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextCaltrainWatchApp.swift; sourceTree = "<group>"; };
+		3F5A6E573FE7C571888FE5B0 /* GoodTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodTimes.swift; sourceTree = "<group>"; };
+		536D351B151A418C1B51A75B /* NextCaltrainWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextCaltrainWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		620056B53323F19CCA107D9E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		75DA780AD372DFB2B8681C6D /* NextCaltrain.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NextCaltrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextCaltrainApp.swift; sourceTree = "<group>"; };
+		A03E72E20A6FF3165A4B3624 /* CaltrainSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainSchedule.swift; sourceTree = "<group>"; };
+		B7D9023B759EF619FE866CC3 /* CaltrainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2C5BC2D8670FE1A11EA27651 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				75DA780AD372DFB2B8681C6D /* NextCaltrain.app */,
+				536D351B151A418C1B51A75B /* NextCaltrainWatch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		52AF0BC61DA78B35C6D4CDF7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				620056B53323F19CCA107D9E /* ContentView.swift */,
+				9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */,
+				61BBE5636F03F76F5385CF68 /* Models */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		61BBE5636F03F76F5385CF68 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A03E72E20A6FF3165A4B3624 /* CaltrainSchedule.swift */,
+				B7D9023B759EF619FE866CC3 /* CaltrainService.swift */,
+				3F5A6E573FE7C571888FE5B0 /* GoodTimes.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		76F09FE691C1F08E9BC0BB08 = {
+			isa = PBXGroup;
+			children = (
+				52AF0BC61DA78B35C6D4CDF7 /* Sources */,
+				80CDB3CE428832E593B21239 /* WatchSources */,
+				2C5BC2D8670FE1A11EA27651 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		80CDB3CE428832E593B21239 /* WatchSources */ = {
+			isa = PBXGroup;
+			children = (
+				2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */,
+			);
+			path = WatchSources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		19C202D7C96F16DB6918EE3E /* NextCaltrainWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2DAD796881A059E026CA11D7 /* Build configuration list for PBXNativeTarget "NextCaltrainWatch" */;
+			buildPhases = (
+				F34D91669EC85473BD1688E9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NextCaltrainWatch;
+			packageProductDependencies = (
+			);
+			productName = NextCaltrainWatch;
+			productReference = 536D351B151A418C1B51A75B /* NextCaltrainWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A2F8037E04D76AC97DA1542C /* NextCaltrain */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C2F3D3CDFC3EDA30071B24C2 /* Build configuration list for PBXNativeTarget "NextCaltrain" */;
+			buildPhases = (
+				888339A84CAABB30EDF6E5AB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NextCaltrain;
+			packageProductDependencies = (
+			);
+			productName = NextCaltrain;
+			productReference = 75DA780AD372DFB2B8681C6D /* NextCaltrain.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CCEDD90EFF24FA7C05528F43 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 3CB49CDE66442AB3B8D5F6A8 /* Build configuration list for PBXProject "NextCaltrain" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 76F09FE691C1F08E9BC0BB08;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2C5BC2D8670FE1A11EA27651 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A2F8037E04D76AC97DA1542C /* NextCaltrain */,
+				19C202D7C96F16DB6918EE3E /* NextCaltrainWatch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		888339A84CAABB30EDF6E5AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8EF40FA02F81CCCB4097FED4 /* CaltrainSchedule.swift in Sources */,
+				A4D850941E98740A8AA9D750 /* CaltrainService.swift in Sources */,
+				118E7B03D9B9F799C88527F1 /* ContentView.swift in Sources */,
+				62EB9BB5B81035B3B5F0903B /* GoodTimes.swift in Sources */,
+				E48BFFC549DC1A5660CF36B4 /* NextCaltrainApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F34D91669EC85473BD1688E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3338A51958DAE9392ECB9D99 /* NextCaltrainWatchApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		010B2BA6C79DA22B818565E2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		07D9A0D97FBE8CEB7B056A55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = NextCaltrainWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrainWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		62BBAAD103CED1CFCA25C9A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = NextCaltrain/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrain;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		67B9E0AC5E86A184CAAFFF62 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		7DA985B970737DD50853CD8C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = NextCaltrain/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrain;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A04E43340B75D30B05C33E1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = NextCaltrainWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrainWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2DAD796881A059E026CA11D7 /* Build configuration list for PBXNativeTarget "NextCaltrainWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				07D9A0D97FBE8CEB7B056A55 /* Debug */,
+				A04E43340B75D30B05C33E1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CB49CDE66442AB3B8D5F6A8 /* Build configuration list for PBXProject "NextCaltrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				010B2BA6C79DA22B818565E2 /* Debug */,
+				67B9E0AC5E86A184CAAFFF62 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C2F3D3CDFC3EDA30071B24C2 /* Build configuration list for PBXNativeTarget "NextCaltrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62BBAAD103CED1CFCA25C9A1 /* Debug */,
+				7DA985B970737DD50853CD8C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CCEDD90EFF24FA7C05528F43 /* Project object */;
+}
