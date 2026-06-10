@@ -1,14 +1,14 @@
 import Foundation
 
-enum ScheduleType: Int {
+enum ScheduleType: Int, Equatable {
     case weekday = 0
     case weekend = 1
     case modified = 2
 
     var label: String {
         switch self {
-        case .weekday: return "Weekday"
-        case .weekend: return "Weekend"
+        case .weekday:  return "Weekday"
+        case .weekend:  return "Weekend"
         case .modified: return "Modified"
         }
     }
@@ -32,29 +32,11 @@ struct Schedule: Codable {
     }
 }
 
-class CaltrainSchedule {
-    let schedule: Schedule
-    let forToday: ScheduleType
-    var selected: ScheduleType
-
-    init(goodTime: GoodTimes, schedule: Schedule) {
-        self.schedule = schedule
-        self.forToday = CaltrainSchedule.optionIndex(goodTime: goodTime, specialDates: schedule.specialDates)
-        self.selected = self.forToday
-    }
-
-    var label: String { selected.label }
-    var swapped: Bool { forToday != selected }
-
-    func next() {
-        let nextRaw = (selected.rawValue + 1) % 3
-        selected = ScheduleType(rawValue: nextRaw)!
-    }
-
-    static func optionIndex(goodTime: GoodTimes, specialDates: [String: Int]) -> ScheduleType {
-        if let type = specialDates[goodTime.date] {
+struct CaltrainSchedule {
+    static func optionIndex(date: String, dotw: Int, specialDates: [String: Int]) -> ScheduleType {
+        if let type = specialDates[date] {
             return ScheduleType(rawValue: type) ?? .weekday
-        } else if goodTime.dotw == 0 || goodTime.dotw == 6 {
+        } else if dotw == 0 || dotw == 6 {
             return .weekend
         } else {
             return .weekday

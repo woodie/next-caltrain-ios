@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var viewModel = TripViewModel()
+
     var body: some View {
-        Text("Next Caltrain")
+        NavigationStack {
+            HomeView(viewModel: viewModel)
+        }
     }
 }
