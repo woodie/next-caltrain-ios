@@ -1,0 +1,30 @@
+name: NextCaltrain
+options:
+  bundleIdPrefix: com.netpress
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+
+targets:
+  NextCaltrain:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    resources:
+      - assets/schedule.json
+    info:
+      path: NextCaltrain/Info.plist
+      properties:
+        CFBundleDisplayName: Next Caltrain
+        UILaunchStoryboardName: ""
+
+  NextCaltrainWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - WatchSources
+    info:
+      path: NextCaltrainWatch/Info.plist
+      properties:
+        CFBundleDisplayName: Next Caltrain
