@@ -7,18 +7,15 @@ class TripViewModel: ObservableObject {
     @Published var scheduleType: ScheduleType = .weekday
     @Published var trips: [Trip] = []
     @Published var nextIndex: Int = 0
-    @Published var selectedTrip: Trip? = nil
+    @Published var offset: Int = 0
     @Published var goodTimes: GoodTimes = GoodTimes()
 
     let schedule: Schedule
     private let service: CaltrainService
     private var timer: AnyCancellable?
 
-    // UserDefaults keys
     private let kStopAM = "stopAM"
     private let kStopPM = "stopPM"
-    private let defaultStopAM = 15  // Palo Alto in southStops
-    private let defaultStopPM = 0   // San Francisco in southStops
 
     var swapped: Bool {
         let today = CaltrainSchedule.optionIndex(
@@ -35,12 +32,16 @@ class TripViewModel: ObservableObject {
     }
 
     var countdown: String? {
-        guard nextIndex < trips.count else { return nil }
-        let c = goodTimes.countdown(trips[nextIndex].depart)
+        guard offset < trips.count else { return nil }
+        let c = goodTimes.countdown(trips[offset].depart)
         return c.isEmpty ? nil : c
     }
 
-    // AM/PM flip based on time of day
+    var isDeparting: Bool {
+        guard offset < trips.count else { return false }
+        return goodTimes.departing(trips[offset].depart)
+    }
+
     private var isFlipped: Bool {
         return Calendar.current.component(.hour, from: Date()) >= 12
     }
@@ -59,14 +60,12 @@ class TripViewModel: ObservableObject {
         self.schedule = sched
         self.service = CaltrainService(schedule: sched)
 
-        // Load saved station indices
         let savedAM = UserDefaults.standard.object(forKey: "stopAM") as? Int
         let savedPM = UserDefaults.standard.object(forKey: "stopPM") as? Int
         let stations = sched.southStops
         let stopAM = savedAM.flatMap { $0 >= 0 && $0 < stations.count ? $0 : nil } ?? 15
         let stopPM = savedPM.flatMap { $0 >= 0 && $0 < stations.count ? $0 : nil } ?? 0
 
-        // Set origin/destination based on time of day
         let flipped = Calendar.current.component(.hour, from: Date()) >= 12
         if flipped {
             self.origin = stations[stopPM]
@@ -96,11 +95,28 @@ class TripViewModel: ObservableObject {
 
     func refresh() {
         trips = service.routes(from: origin, to: destination, scheduleType: scheduleType)
-        updateNextIndex()
+        nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
+        offset = nextIndex
+        if offset >= trips.count { offset = max(0, trips.count - 1) }
     }
 
     func updateNextIndex() {
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
+        // Only advance offset if time has moved past it (train departed)
+        // Don't reset if user manually selected a past train
+        if offset < nextIndex - 1 {
+            offset = nextIndex
+        }
+        // Clamp to valid range
+        if offset >= trips.count { offset = max(0, trips.count - 1) }
+    }
+
+    func offsetUp() {
+        if offset > 0 { offset -= 1 }
+    }
+
+    func offsetDown() {
+        if offset < trips.count - 1 { offset += 1 }
     }
 
     func swapStations() {
@@ -113,7 +129,6 @@ class TripViewModel: ObservableObject {
 
     func saveStops() {
         let stations = schedule.southStops
-        // Figure out which is AM and which is PM based on current flip state
         let flipped = isFlipped
         let amStation = flipped ? destination : origin
         let pmStation = flipped ? origin : destination

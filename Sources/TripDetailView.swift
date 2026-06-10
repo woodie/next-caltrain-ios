@@ -9,42 +9,45 @@ struct StopRow: View {
     let station: String
     let role: StopRole
     let isLast: Bool
+    var transferLabel: String? = nil
 
+    // Line and dot color — past=cyan, future=green, matches legacy CSS
+    var trackColor: Color {
+        switch role {
+        case .past: return .calPast
+        default:    return .calArrive
+        }
+    }
+
+    // Dot color — origin/destination/transfer are white (.target in legacy)
     var dotColor: Color {
         switch role {
-        case .past:        return .blue
-        case .origin:      return .white
-        case .destination: return .white
-        case .transfer:    return .white
-        case .future:      return .green
+        case .origin, .destination, .transfer: return .white
+        default: return trackColor
         }
     }
 
+    // Time and station name color
     var textColor: Color {
         switch role {
-        case .past: return .blue
+        case .past: return .calPast
         default:    return .white
-        }
-    }
-
-    var lineColor: Color {
-        switch role {
-        case .past: return .blue
-        default:    return .green
         }
     }
 
     var body: some View {
         HStack(spacing: 12) {
+            // station-time
             Text(GoodTimes.fullTime(time))
                 .foregroundColor(textColor)
-                .font(.body)
+                .font(.system(size: AppStyle.fontStationTime, weight: .regular))
                 .frame(width: 75, alignment: .trailing)
 
+            // station-spacer: vertical line + dot
             ZStack(alignment: .top) {
                 if !isLast {
                     Rectangle()
-                        .fill(lineColor)
+                        .fill(trackColor)
                         .frame(width: 2)
                         .offset(y: 10)
                 }
@@ -54,9 +57,17 @@ struct StopRow: View {
             }
             .frame(width: 10)
 
-            Text(station)
-                .foregroundColor(textColor)
-                .font(.body)
+            // station-name
+            VStack(alignment: .leading, spacing: 2) {
+                Text(station)
+                    .foregroundColor(textColor)
+                    .font(.system(size: AppStyle.fontStationName, weight: .regular))
+                if let label = transferLabel {
+                    Text(label)
+                        .foregroundColor(.calPast)
+                        .font(.system(size: AppStyle.fontStationName - 2, weight: .regular))
+                }
+            }
             Spacer()
         }
         .frame(minHeight: 28)
@@ -68,6 +79,7 @@ struct TripStop {
     let time: Int
     let station: String
     let role: StopRole
+    var transferLabel: String? = nil
 }
 
 struct TripDetailView: View {
@@ -102,15 +114,16 @@ struct TripDetailView: View {
                 guard let t = time, i < stopList.count else { continue }
                 let sta = stopList[i]
 
-                // Skip transfer station on second leg — already shown from first leg
                 if isSecondLeg && sta == CaltrainService.transferStation { continue }
+
+                let isTransfer = trip.isTransfer && legIndex == 0 && sta == CaltrainService.transferStation
 
                 let role: StopRole
                 if sta == origin && legIndex == 0 {
                     role = .origin
                 } else if sta == destination {
                     role = .destination
-                } else if trip.isTransfer && sta == CaltrainService.transferStation {
+                } else if isTransfer {
                     role = .transfer
                 } else if goodTimes.inThePast(t) {
                     role = .past
@@ -118,17 +131,18 @@ struct TripDetailView: View {
                     role = .future
                 }
 
-                result.append(TripStop(time: t, station: sta, role: role))
+                let transferLabel: String? = isTransfer ?
+                    "→ #\(trip.legs[1].trainId) \(CaltrainService.trainType(trip.legs[1].trainId))" : nil
+
+                result.append(TripStop(time: t, station: sta, role: role, transferLabel: transferLabel))
             }
         }
         return result
     }
 
-    // Show the leg the rider is currently on based on current time
     private var currentLeg: Leg {
         guard trip.legs.count > 1 else { return trip.legs.first! }
-        let transferDepart = trip.legs[1].depart
-        if goodTimes.inThePast(transferDepart) {
+        if goodTimes.inThePast(trip.legs[1].depart) {
             return trip.legs[1]
         }
         return trip.legs.first!
@@ -146,7 +160,7 @@ struct TripDetailView: View {
             VStack(spacing: 0) {
                 Text(title)
                     .foregroundColor(.white)
-                    .font(.title3.bold())
+                    .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
                     .padding(.top, 16)
                     .padding(.bottom, 8)
 
@@ -158,7 +172,8 @@ struct TripDetailView: View {
                                 time: stop.time,
                                 station: stop.station,
                                 role: stop.role,
-                                isLast: index == allStops.count - 1
+                                isLast: index == allStops.count - 1,
+                                transferLabel: stop.transferLabel
                             )
                         }
                     }

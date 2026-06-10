@@ -6,14 +6,6 @@ struct HomeView: View {
     @State private var showTripList: Bool = false
     @State private var showStationSelection: Bool = false
 
-    // Font sizes — named after legacy CSS classes
-    private let fontOriginHero: CGFloat = 22   // origin-hero / destin-hero
-    private let fontBlurbHero: CGFloat = 28    // blurb-hero (countdown/status)
-    private let fontTrainHero: CGFloat = 18    // train-hero (#101)
-    private let fontTimeHero: CGFloat = 28     // time-hero (5:10)
-    private let fontMeridiemHero: CGFloat = 18 // meridiem-hero (am/pm)
-    private let fontTripType: CGFloat = 18     // trip-type (Local)
-
     var nextTrip: Trip? {
         guard viewModel.nextIndex < viewModel.trips.count else { return nil }
         return viewModel.trips[viewModel.nextIndex]
@@ -69,11 +61,11 @@ struct HomeView: View {
                 HStack {
                     Text("Next Caltrain")
                         .foregroundColor(.white)
-                        .font(.headline)
+                        .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
                     Spacer()
                     Text(viewModel.goodTimes.fullTime())
                         .foregroundColor(.white)
-                        .font(.headline)
+                        .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
@@ -84,41 +76,42 @@ struct HomeView: View {
                 ZStack {
                     Circle()
                         .stroke(ringColor, lineWidth: 5)
-                        .frame(width: 300, height: 300)
+                        .frame(width: 230, height: 230)
                         .animation(.easeInOut(duration: 0.4), value: ringColor)
 
                     VStack(spacing: 6) {
-                        // origin-hero / destin-hero
                         VStack(spacing: 0) {
                             Text(line1)
                                 .foregroundColor(.white)
-                                .font(.system(size: fontOriginHero, weight: .bold))
+                                .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
                             Text(line2)
                                 .foregroundColor(.white)
-                                .font(.system(size: fontOriginHero, weight: .bold))
+                                .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
                         }
                         .onTapGesture { showStationSelection = true }
 
                         if noTrainsAtAll {
                             Text("No trains")
                                 .foregroundColor(.white)
-                                .font(.system(size: fontBlurbHero, weight: .regular))
+                                .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                         } else {
                             // blurb-hero
                             if isDeparting {
                                 Text("DEPARTING")
                                     .foregroundColor(.calDepart)
-                                    .font(.system(size: fontBlurbHero, weight: .bold))
+                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                                     .opacity(blinkOn ? 1 : 0)
                                     .animation(.easeInOut(duration: 0.5), value: blinkOn)
                             } else if isPastLastTrain || viewModel.swapped {
                                 Text(viewModel.scheduleType.label)
                                     .foregroundColor(.calPast)
-                                    .font(.system(size: fontBlurbHero, weight: .bold))
+                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                             } else if let countdown = viewModel.countdown {
                                 Text(countdown)
                                     .foregroundColor(.calArrive)
-                                    .font(.system(size: fontBlurbHero, weight: .bold))
+                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
                             }
 
                             // train-hero + time-hero + meridiem-hero
@@ -129,23 +122,23 @@ struct HomeView: View {
                                     HStack(alignment: .lastTextBaseline, spacing: 3) {
                                         Text("#\(trip.legs.first!.trainId)")
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: fontTrainHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontTrainHero, weight: .regular))
                                         Text(timeStr)
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: fontTimeHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontTimeHero, weight: .regular))
                                         Text(merStr)
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: fontMeridiemHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontMeridiemHero, weight: .regular))
                                     }
-                                    // trip-type
                                     Text(CaltrainService.trainType(trip.legs.first!.trainId))
                                         .foregroundColor(.white)
-                                        .font(.system(size: fontTripType, weight: .regular))
+                                        .font(.system(size: AppStyle.fontTripType, weight: .regular))
                                 }
                             }
                         }
                     }
-                    .frame(width: 260)
+                    .frame(width: 190)
+                    .offset(y: 8)
                 }
                 .contentShape(Circle())
                 .onTapGesture {

@@ -42,7 +42,7 @@ struct CaltrainService {
     }
 
     func nextIndex(trips: [Trip], minutes: Int) -> Int {
-        return trips.firstIndex { $0.depart > minutes } ?? trips.count
+        return trips.firstIndex { $0.depart >= minutes } ?? trips.count
     }
 
     // MARK: - Private
