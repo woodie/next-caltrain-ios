@@ -12,20 +12,32 @@ Usage:
 
 import csv
 import json
+import re
 import sys
+from datetime import date
 from pathlib import Path
 
-SPECIAL_DATES = {
-    "2025-11-28": 2,  # Day After Thanksgiving
-    "2025-12-24": 2,  # Christmas Eve
-    "2026-01-19": 2,  # Martin Luther King Jr. Day
-}
+def load_special_dates(data_dir):
+    """Parse special dates from holiday_service.js in data_dir."""
+    today = date.today().isoformat()
+    js_file = data_dir / "holiday_service.js"
+    special = {}
+    with open(js_file) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("//") or line.startswith("/*"):
+                continue
+            m = re.match(r"'(\d{4}-\d{2}-\d{2})':\s*(\d+),?\s*(?://.*)?$", line)
+            if m and m.group(1) >= today:
+                special[m.group(1)] = int(m.group(2))
+    return special
 
 def time_to_minutes(t):
     if not t or not t.strip():
         return None
     parts = t.strip().split(":")
     return int(parts[0]) * 60 + int(parts[1])
+
 
 def read_csv(path):
     with open(path, newline="") as f:
@@ -44,9 +56,13 @@ def read_csv(path):
             trains[tid].append(time_to_minutes(val))
     return stations, trains
 
+
 def main():
     data_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("../next-caltrain-pwa/data")
     out_file = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("assets/schedule.json")
+
+    special_dates = load_special_dates(data_dir)
+    print(f"Loaded {len(special_dates)} special dates from holiday_service.js")
 
     north_stations, weekday_north = read_csv(data_dir / "weekday_north.csv")
     south_stations, weekday_south = read_csv(data_dir / "weekday_south.csv")
@@ -56,7 +72,7 @@ def main():
     _, modified_south = read_csv(data_dir / "modified_south.csv")
 
     schedule = {
-        "specialDates": SPECIAL_DATES,
+        "specialDates": special_dates,
         "northStops": north_stations,
         "southStops": south_stations,
         "northWeekday":  {str(k): v for k, v in weekday_north.items()},
@@ -73,6 +89,7 @@ def main():
 
     size = out_file.stat().st_size
     print(f"Written to {out_file} ({size:,} bytes)")
+
 
 if __name__ == "__main__":
     main()
