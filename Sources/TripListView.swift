@@ -115,6 +115,7 @@ struct TripListView: View {
                         .foregroundColor(.white)
                 }
                 .padding(.top, 8)
+                .contentShape(Rectangle())
                 .onTapGesture { showStationSelection = true }
 
                 // blurb — updates live during drag
@@ -163,12 +164,8 @@ struct TripListView: View {
                                 dragShift = newShift
                             }
                         }
-                        .onEnded { value in
-                            let finalShift = -Int((value.translation.height / rowHeight).rounded())
-                            let proposed = viewModel.offset + finalShift
-                            if proposed >= 0 && proposed < viewModel.trips.count {
-                                viewModel.offset = proposed
-                            }
+                        .onEnded { _ in
+                            viewModel.setOffset(effectiveOffset)
                             dragShift = 0
                         }
                 )

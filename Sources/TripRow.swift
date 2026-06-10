@@ -44,7 +44,8 @@ struct TripRow: View {
             Spacer()
             timeView(trip.arrive)
         }
-        .padding(.horizontal, 32)
+        .frame(maxWidth: 360)
+        .frame(maxWidth: .infinity)
         .padding(.vertical, 2)
         .overlay(
             RoundedRectangle(cornerRadius: 8)

@@ -33,6 +33,22 @@ struct StationSelectionView: View {
         }
     }
 
+    func stationRow(_ station: String, selected: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark")
+                .foregroundColor(.green)
+                .opacity(station == selected ? 1 : 0)
+                .frame(width: 20)
+            Text(station)
+                .foregroundColor(.white)
+                .font(.system(size: AppStyle.fontStationName + 2, weight: .regular))
+            Spacer()
+        }
+        .frame(maxWidth: 400)
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+    }
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -50,22 +66,13 @@ struct StationSelectionView: View {
 
                     ScrollViewReader { proxy in
                         List(stations, id: \.self) { station in
-                            HStack {
-                                Text(station)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                if station == viewModel.origin {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.green)
+                            stationRow(station, selected: viewModel.origin)
+                                .listRowBackground(Color.black)
+                                .id(station)
+                                .onTapGesture {
+                                    viewModel.origin = station
+                                    viewModel.refresh()
                                 }
-                            }
-                            .contentShape(Rectangle())
-                            .listRowBackground(Color.black)
-                            .id(station)
-                            .onTapGesture {
-                                viewModel.origin = station
-                                viewModel.refresh()
-                            }
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.black)
@@ -93,22 +100,13 @@ struct StationSelectionView: View {
 
                     ScrollViewReader { proxy in
                         List(stations, id: \.self) { station in
-                            HStack {
-                                Text(station)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                if station == viewModel.destination {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.green)
+                            stationRow(station, selected: viewModel.destination)
+                                .listRowBackground(Color.black)
+                                .id(station)
+                                .onTapGesture {
+                                    viewModel.destination = station
+                                    viewModel.refresh()
                                 }
-                            }
-                            .contentShape(Rectangle())
-                            .listRowBackground(Color.black)
-                            .id(station)
-                            .onTapGesture {
-                                viewModel.destination = station
-                                viewModel.refresh()
-                            }
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.black)

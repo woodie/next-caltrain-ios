@@ -8,6 +8,7 @@ class TripViewModel: ObservableObject {
     @Published var trips: [Trip] = []
     @Published var nextIndex: Int = 0
     @Published var offset: Int = 0
+    private var userSelected: Bool = false
     @Published var goodTimes: GoodTimes = GoodTimes()
 
     let schedule: Schedule
@@ -96,18 +97,21 @@ class TripViewModel: ObservableObject {
     func refresh() {
         trips = service.routes(from: origin, to: destination, scheduleType: scheduleType)
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
+        userSelected = false
         offset = nextIndex
         if offset >= trips.count { offset = max(0, trips.count - 1) }
     }
 
+    func setOffset(_ newOffset: Int) {
+        userSelected = true
+        offset = newOffset
+    }
+
     func updateNextIndex() {
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
-        // Only advance offset if time has moved past it (train departed)
-        // Don't reset if user manually selected a past train
-        if offset < nextIndex - 1 {
+        if !userSelected {
             offset = nextIndex
         }
-        // Clamp to valid range
         if offset >= trips.count { offset = max(0, trips.count - 1) }
     }
 

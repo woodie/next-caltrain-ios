@@ -177,6 +177,8 @@ struct TripDetailView: View {
                             )
                         }
                     }
+                    .frame(maxWidth: 400)
+                    .frame(maxWidth: .infinity)
                 }
             }
         }

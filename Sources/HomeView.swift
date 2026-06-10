@@ -5,28 +5,35 @@ struct HomeView: View {
     @State private var blinkOn: Bool = true
     @State private var showTripList: Bool = false
     @State private var showStationSelection: Bool = false
+    @State private var dragShift: Int = 0
 
-    var nextTrip: Trip? {
-        guard viewModel.nextIndex < viewModel.trips.count else { return nil }
-        return viewModel.trips[viewModel.nextIndex]
+    private let rowHeight: CGFloat = 44
+
+    var effectiveOffset: Int {
+        let shifted = viewModel.offset + dragShift
+        return max(0, min(shifted, max(viewModel.trips.count - 1, 0)))
     }
 
-    var displayTrip: Trip? {
-        if let t = nextTrip { return t }
-        return viewModel.trips.first
+    var selectedTrip: Trip? {
+        guard effectiveOffset < viewModel.trips.count else { return nil }
+        return viewModel.trips[effectiveOffset]
     }
 
     var noTrainsAtAll: Bool { viewModel.trips.isEmpty }
-    var isPastLastTrain: Bool { !viewModel.trips.isEmpty && nextTrip == nil }
 
-    var isDeparting: Bool {
-        guard let trip = nextTrip else { return false }
+    var isSelectedPast: Bool {
+        guard let trip = selectedTrip else { return false }
+        return viewModel.goodTimes.inThePast(trip.depart)
+    }
+
+    var isSelectedDeparting: Bool {
+        guard let trip = selectedTrip else { return false }
         return viewModel.goodTimes.departing(trip.depart)
     }
 
     var ringColor: Color {
-        if viewModel.swapped || isPastLastTrain { return .calSwapped }
-        if isDeparting { return .calDepart }
+        if viewModel.swapped || isSelectedPast { return .calSwapped }
+        if isSelectedDeparting { return .calDepart }
         return .calArrive
     }
 
@@ -88,6 +95,7 @@ struct HomeView: View {
                                 .foregroundColor(.white)
                                 .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
                         }
+                        .contentShape(Rectangle())
                         .onTapGesture { showStationSelection = true }
 
                         if noTrainsAtAll {
@@ -96,27 +104,30 @@ struct HomeView: View {
                                 .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                         } else {
                             // blurb-hero
-                            if isDeparting {
+                            if isSelectedDeparting {
                                 Text("DEPARTING")
                                     .foregroundColor(.calDepart)
                                     .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                                     .opacity(blinkOn ? 1 : 0)
                                     .animation(.easeInOut(duration: 0.5), value: blinkOn)
-                            } else if isPastLastTrain || viewModel.swapped {
+                            } else if viewModel.swapped || isSelectedPast {
                                 Text(viewModel.scheduleType.label)
                                     .foregroundColor(.calPast)
                                     .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
-                            } else if let countdown = viewModel.countdown {
-                                Text(countdown)
-                                    .foregroundColor(.calArrive)
-                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
-                                    .lineLimit(1)
-                                    .fixedSize(horizontal: true, vertical: false)
+                            } else if let trip = selectedTrip {
+                                let c = viewModel.goodTimes.countdown(trip.depart)
+                                if !c.isEmpty {
+                                    Text(c)
+                                        .foregroundColor(.calArrive)
+                                        .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                        .lineLimit(1)
+                                        .fixedSize(horizontal: true, vertical: false)
+                                }
                             }
 
                             // train-hero + time-hero + meridiem-hero
-                            if let trip = displayTrip {
-                                let infoColor: Color = (isPastLastTrain || viewModel.swapped) ? .calPast : .white
+                            if let trip = selectedTrip {
+                                let infoColor: Color = (viewModel.swapped || isSelectedPast) ? .calPast : .white
                                 let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
                                 VStack(spacing: 2) {
                                     HStack(alignment: .lastTextBaseline, spacing: 3) {
@@ -144,8 +155,22 @@ struct HomeView: View {
                 .onTapGesture {
                     if !noTrainsAtAll { showTripList = true }
                 }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 10)
+                        .onChanged { value in
+                            let newShift = -Int((value.translation.height / rowHeight).rounded())
+                            let proposed = viewModel.offset + newShift
+                            if proposed >= 0 && proposed < viewModel.trips.count {
+                                dragShift = newShift
+                            }
+                        }
+                        .onEnded { _ in
+                            viewModel.setOffset(effectiveOffset)
+                            dragShift = 0
+                        }
+                )
                 .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
-                    blinkOn = isDeparting ? !blinkOn : true
+                    blinkOn = isSelectedDeparting ? !blinkOn : true
                 }
 
                 Spacer()
