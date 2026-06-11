@@ -40,6 +40,7 @@ struct TripListView: View {
     }
 
     var statusColor: Color {
+        if viewModel.trips.isEmpty { return .calPast }
         if viewModel.swapped     { return .calSwapped }
         if isSelectedPast        { return .calPast }
         if isSelectedDeparting   { return .calDepart }
@@ -47,6 +48,7 @@ struct TripListView: View {
     }
 
     var statusText: String {
+        if viewModel.trips.isEmpty { return "NO TRAINS" }
         if viewModel.swapped || isSelectedPast {
             return "\(viewModel.scheduleType.label) Schedule"
         }
@@ -125,7 +127,7 @@ struct TripListView: View {
         }
         .navigationBarHidden(true)
         .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
-            blinkOn = isSelectedDeparting ? !blinkOn : true
+            blinkOn = (isSelectedDeparting || viewModel.trips.isEmpty) ? !blinkOn : true
         }
     }
 
@@ -200,7 +202,7 @@ struct TripListView: View {
             Text(statusText)
                 .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
                 .foregroundColor(statusColor)
-                .opacity(isSelectedDeparting ? (blinkOn ? 1 : 0) : 1)
+                .opacity((isSelectedDeparting || viewModel.trips.isEmpty) ? (blinkOn ? 1 : 0) : 1)
                 .animation(.easeInOut(duration: 0.5), value: blinkOn)
                 .padding(.top, 4)
                 .lineLimit(1)

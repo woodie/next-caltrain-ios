@@ -18,7 +18,6 @@ struct TripRow: View {
     var textColor: Color {
         if isPast      { return .calPast }
         if swapped     { return .calPast }
-        if isDeparting { return .calDepart }
         return .white
     }
 

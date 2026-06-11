@@ -33,6 +33,7 @@ struct HomeView: View {
     }
 
     var ringColor: Color {
+        if noTrainsAtAll { return .calSwapped }
         if viewModel.swapped || isSelectedPast { return .calSwapped }
         if isSelectedDeparting { return .calDepart }
         return .calArrive
@@ -121,9 +122,11 @@ struct HomeView: View {
                         .onTapGesture { showStationSelection = true }
 
                         if noTrainsAtAll {
-                            Text("No trains")
-                                .foregroundColor(.white)
+                            Text("NO TRAINS")
+                                .foregroundColor(.calPast)
                                 .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                .opacity(blinkOn ? 1 : 0)
+                                .animation(.easeInOut(duration: 0.5), value: blinkOn)
                         } else {
                             // blurb-hero
                             if isSelectedDeparting {
@@ -175,7 +178,7 @@ struct HomeView: View {
                 }
                 .contentShape(Circle())
                 .onTapGesture {
-                    if !noTrainsAtAll { showTripList = true }
+                    showTripList = true
                 }
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 10)
@@ -192,7 +195,7 @@ struct HomeView: View {
                         }
                 )
                 .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
-                    blinkOn = isSelectedDeparting ? !blinkOn : true
+                    blinkOn = (isSelectedDeparting || noTrainsAtAll) ? !blinkOn : true
                 }
 
                 Spacer()
