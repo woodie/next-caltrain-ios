@@ -6,6 +6,7 @@ extension Color {
     static let calArrive  = Color(red: 0.0, green: 1.0,  blue: 0.0)   // --msg-arriving-color:  #0F0
     static let calDepart  = Color(red: 1.0, green: 1.0,  blue: 0.0)   // --msg-departing-color: #FF0
     static let calSwapped = Color(white: 0.4)                          // --msg-selected-color:  #666
+    static let iconCircleBackground = Color(white: 0.15)               // toolbar icon button background
 }
 
 // MARK: - Font sizes (named after legacy CSS classes)
@@ -29,4 +30,7 @@ enum AppStyle {
 
     // Status bar (#statusbar)
     static let fontStatusBar: CGFloat   = 15  // #statusbar
+
+    // Toolbar icon buttons (back, swap, reset)
+    static let iconButtonSize: CGFloat  = 44
 }

@@ -1,11 +1,19 @@
 import SwiftUI
 
+struct TimeWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 struct TripRow: View {
     let trip: Trip
     let isNext: Bool
     let isPast: Bool
     let isDeparting: Bool
     let swapped: Bool
+    var timeColumnWidth: CGFloat = 0
 
     var textColor: Color {
         if isPast      { return .calPast }
@@ -31,21 +39,25 @@ struct TripRow: View {
                 .font(.system(size: AppStyle.fontMeridiem, weight: .regular))
         }
         .foregroundColor(textColor)
+        .fixedSize(horizontal: true, vertical: false)
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: TimeWidthKey.self, value: geo.size.width)
+            }
+        )
+        .frame(width: timeColumnWidth > 0 ? timeColumnWidth : nil, alignment: .center)
     }
 
     var body: some View {
-        HStack(alignment: .lastTextBaseline, spacing: 0) {
+        HStack(alignment: .lastTextBaseline, spacing: 24) {
             Text("#\(trip.legs.first!.trainId)")
                 .foregroundColor(textColor)
                 .font(.system(size: AppStyle.fontTrainNumber, weight: .regular))
                 .frame(width: 50, alignment: .leading)
-            Spacer()
             timeView(trip.depart)
-            Spacer()
             timeView(trip.arrive)
         }
-        .frame(maxWidth: 360)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 2)
         .overlay(
             RoundedRectangle(cornerRadius: 8)

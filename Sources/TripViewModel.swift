@@ -9,6 +9,7 @@ class TripViewModel: ObservableObject {
     @Published var nextIndex: Int = 0
     @Published var offset: Int = 0
     private var userSelected: Bool = false
+    var hasManualSelection: Bool { userSelected }
     @Published var goodTimes: GoodTimes = GoodTimes()
 
     let schedule: Schedule
@@ -105,6 +106,12 @@ class TripViewModel: ObservableObject {
     func setOffset(_ newOffset: Int) {
         userSelected = true
         offset = newOffset
+    }
+
+    func resetToNext() {
+        userSelected = false
+        offset = nextIndex
+        if offset >= trips.count { offset = max(0, trips.count - 1) }
     }
 
     func updateNextIndex() {

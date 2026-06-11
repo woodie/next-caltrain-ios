@@ -1,5 +1,12 @@
 import SwiftUI
 
+private struct StationNameWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 enum StopRole {
     case past, origin, destination, transfer, future
 }
@@ -10,6 +17,7 @@ struct StopRow: View {
     let role: StopRole
     let isLast: Bool
     var transferLabel: String? = nil
+    var nameColumnWidth: CGFloat = 0
 
     // Line and dot color — past=cyan, future=green, matches legacy CSS
     var trackColor: Color {
@@ -61,17 +69,25 @@ struct StopRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(station)
                     .foregroundColor(textColor)
-                    .font(.system(size: AppStyle.fontStationName, weight: .regular))
+                    .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                    .fixedSize(horizontal: true, vertical: false)
                 if let label = transferLabel {
                     Text(label)
                         .foregroundColor(.calPast)
-                        .font(.system(size: AppStyle.fontStationName - 2, weight: .regular))
+                        .font(.system(size: AppStyle.fontOriginHero - 2, weight: .regular))
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
-            Spacer()
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(key: StationNameWidthKey.self, value: geo.size.width)
+                }
+            )
+            .frame(width: nameColumnWidth > 0 ? nameColumnWidth : nil, alignment: .leading)
         }
         .frame(minHeight: 28)
-        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .offset(x: -2) // shifted right 20pt from -22
     }
 }
 
@@ -89,6 +105,8 @@ struct TripDetailView: View {
     let destination: String
     let scheduleType: ScheduleType
     let goodTimes: GoodTimes
+
+    @State private var nameColumnWidth: CGFloat = 0
 
     private var stops: [TripStop] {
         var result: [TripStop] = []
@@ -173,12 +191,14 @@ struct TripDetailView: View {
                                 station: stop.station,
                                 role: stop.role,
                                 isLast: index == allStops.count - 1,
-                                transferLabel: stop.transferLabel
+                                transferLabel: stop.transferLabel,
+                                nameColumnWidth: nameColumnWidth
                             )
                         }
                     }
-                    .frame(maxWidth: 400)
-                    .frame(maxWidth: .infinity)
+                    .onPreferenceChange(StationNameWidthKey.self) { width in
+                        nameColumnWidth = width
+                    }
                 }
             }
         }

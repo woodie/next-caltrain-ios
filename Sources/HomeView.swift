@@ -65,18 +65,44 @@ struct HomeView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // toolbar — real time (left), reset (conditional) + swap (right)
                 HStack {
-                    Text("Next Caltrain")
-                        .foregroundColor(.white)
-                        .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
-                    Spacer()
                     Text(viewModel.goodTimes.fullTime())
                         .foregroundColor(.white)
                         .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
+                        .frame(height: AppStyle.iconButtonSize)
+
+                    Spacer()
+
+                    if viewModel.hasManualSelection {
+                        Button {
+                            viewModel.resetToNext()
+                        } label: {
+                            Image(systemName: "arrow.counterclockwise")
+                                .foregroundColor(.white)
+                                .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                                .background(Circle().fill(Color.iconCircleBackground))
+                        }
+                    }
+
+                    Button {
+                        viewModel.swapStations()
+                    } label: {
+                        Image(systemName: "arrow.left.arrow.right")
+                            .foregroundColor(.white)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
-                .padding(.bottom, 8)
+
+                // app name — centered below the icon row
+                Text("Next Caltrain")
+                    .foregroundColor(.white)
+                    .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 16)
 
                 Spacer()
 
@@ -90,10 +116,10 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             Text(line1)
                                 .foregroundColor(.white)
-                                .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
+                                .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
                             Text(line2)
                                 .foregroundColor(.white)
-                                .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
+                                .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
                         }
                         .contentShape(Rectangle())
                         .onTapGesture { showStationSelection = true }

@@ -2,9 +2,13 @@ import SwiftUI
 
 struct TripListView: View {
     @ObservedObject var viewModel: TripViewModel
+    @Environment(\.dismiss) private var dismiss
     @State private var showStationSelection: Bool = false
     @State private var blinkOn: Bool = true
     @State private var dragShift: Int = 0
+    @State private var suppressTap: Bool = false
+    @State private var navigateToTrip: Trip? = nil
+    @State private var timeColumnWidth: CGFloat = 0
 
     private let rowHeight: CGFloat = 44
 
@@ -30,7 +34,7 @@ struct TripListView: View {
         return viewModel.goodTimes.departing(trip.depart)
     }
 
-    var serviceLabel: String {
+    var serviceTypeLabel: String {
         guard let trip = selectedTrip else { return "" }
         return CaltrainService.trainType(trip.legs.first!.trainId) + " Service"
     }
@@ -92,29 +96,58 @@ struct TripListView: View {
             Color.black.ignoresSafeArea()
             VStack(spacing: 0) {
 
-                // statusbar — service label updates with drag
+                // toolbar — back (left), reset (conditional) + swap (right)
                 HStack {
-                    Text(serviceLabel)
-                        .foregroundColor(viewModel.swapped ? .calSwapped : .white)
-                        .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
+
                     Spacer()
-                    Text(viewModel.goodTimes.fullTime())
-                        .foregroundColor(.white)
-                        .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
+
+                    if viewModel.hasManualSelection {
+                        Button {
+                            viewModel.resetToNext()
+                        } label: {
+                            Image(systemName: "arrow.counterclockwise")
+                                .foregroundColor(.white)
+                                .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                                .background(Circle().fill(Color.iconCircleBackground))
+                        }
+                    }
+
+                    Button {
+                        viewModel.swapStations()
+                    } label: {
+                        Image(systemName: "arrow.left.arrow.right")
+                            .foregroundColor(.white)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
+                // service type label — same size/position as HomeView's bottom label
+                Text(serviceTypeLabel)
+                    .foregroundColor(.white)
+                    .font(.system(size: AppStyle.fontTripType, weight: .regular))
+                    .padding(.top, 8)
+
                 // origin / destination
                 VStack(spacing: 2) {
                     Text(line1)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
+                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
                         .foregroundColor(.white)
                     Text(line2)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
+                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
                         .foregroundColor(.white)
                 }
-                .padding(.top, 8)
+                .padding(.top, 4)
                 .contentShape(Rectangle())
                 .onTapGesture { showStationSelection = true }
 
@@ -133,31 +166,30 @@ struct TripListView: View {
                 VStack(spacing: 0) {
                     ForEach(0..<min(20, max(viewModel.trips.count, 1)), id: \.self) { slot in
                         if let trip = tripAt(slot) {
-                            NavigationLink {
-                                TripDetailView(
-                                    trip: trip,
-                                    schedule: viewModel.schedule,
-                                    origin: viewModel.origin,
-                                    destination: viewModel.destination,
-                                    scheduleType: viewModel.scheduleType,
-                                    goodTimes: viewModel.goodTimes
-                                )
-                            } label: {
-                                TripRow(
-                                    trip: trip,
-                                    isNext: isNext(slot),
-                                    isPast: isPast(slot),
-                                    isDeparting: isDepartingSlot(slot),
-                                    swapped: viewModel.swapped
-                                )
+                            TripRow(
+                                trip: trip,
+                                isNext: isNext(slot),
+                                isPast: isPast(slot),
+                                isDeparting: isDepartingSlot(slot),
+                                swapped: viewModel.swapped,
+                                timeColumnWidth: timeColumnWidth
+                            )
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if !suppressTap {
+                                    navigateToTrip = trip
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                }
+                .onPreferenceChange(TimeWidthKey.self) { width in
+                    timeColumnWidth = width
                 }
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 10)
                         .onChanged { value in
+                            suppressTap = true
                             let newShift = -Int((value.translation.height / rowHeight).rounded())
                             let proposed = viewModel.offset + newShift
                             if proposed >= 0 && proposed < viewModel.trips.count {
@@ -167,6 +199,10 @@ struct TripListView: View {
                         .onEnded { _ in
                             viewModel.setOffset(effectiveOffset)
                             dragShift = 0
+                            // Allow taps again shortly after drag ends
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                suppressTap = false
+                            }
                         }
                 )
                 .padding(.top, 8)
@@ -174,10 +210,30 @@ struct TripListView: View {
                 Spacer()
             }
 
+            NavigationLink(
+                destination: navigateToTrip.map { trip in
+                    TripDetailView(
+                        trip: trip,
+                        schedule: viewModel.schedule,
+                        origin: viewModel.origin,
+                        destination: viewModel.destination,
+                        scheduleType: viewModel.scheduleType,
+                        goodTimes: viewModel.goodTimes
+                    )
+                },
+                isActive: Binding(
+                    get: { navigateToTrip != nil },
+                    set: { if !$0 { navigateToTrip = nil } }
+                )
+            ) {
+                EmptyView()
+            }
+
             NavigationLink(destination: StationSelectionView(viewModel: viewModel), isActive: $showStationSelection) {
                 EmptyView()
             }
         }
+        .navigationBarHidden(true)
         .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
             blinkOn = isSelectedDeparting ? !blinkOn : true
         }
