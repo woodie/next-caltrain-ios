@@ -52,7 +52,7 @@ struct TripRow: View {
             Text("#\(trip.legs.first!.trainId)")
                 .foregroundColor(textColor)
                 .font(.system(size: AppStyle.fontTrainNumber, weight: .regular))
-                .frame(width: 50, alignment: .leading)
+                .frame(width: 58, alignment: .leading)
             timeView(trip.depart)
             timeView(trip.arrive)
         }

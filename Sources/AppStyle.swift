@@ -20,9 +20,9 @@ enum AppStyle {
     static let fontTripType: CGFloat   = 18   // #trip-type (Local)
 
     // Grid screen (.grid-screen / TripRow)
-    static let fontTrainNumber: CGFloat = 14  // .train-number
+    static let fontTrainNumber: CGFloat = 16  // .train-number
     static let fontTrainTime: CGFloat   = 27  // .train-time
-    static let fontMeridiem: CGFloat    = 15  // .meridiem
+    static let fontMeridiem: CGFloat    = 18  // .meridiem
 
     // Trip detail screen (.trip-screen / StopRow)
     static let fontStationTime: CGFloat = 16  // .station-time
