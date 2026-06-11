@@ -61,6 +61,7 @@ class TripViewModel: ObservableObject {
         let sched = Schedule.load()
         self.schedule = sched
         self.service = CaltrainService(schedule: sched)
+        Schedule.refreshFromNetwork()
 
         let savedAM = UserDefaults.standard.object(forKey: "stopAM") as? Int
         let savedPM = UserDefaults.standard.object(forKey: "stopPM") as? Int

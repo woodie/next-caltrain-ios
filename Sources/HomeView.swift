@@ -5,6 +5,7 @@ struct HomeView: View {
     @State private var blinkOn: Bool = true
     @State private var showTripList: Bool = false
     @State private var showStationSelection: Bool = false
+    @State private var showAbout: Bool = false
     @State private var dragShift: Int = 0
 
     private let rowHeight: CGFloat = 44
@@ -103,6 +104,8 @@ struct HomeView: View {
                     .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, 16)
+                    .contentShape(Rectangle())
+                    .onTapGesture { showAbout = true }
 
                 Spacer()
 
@@ -201,11 +204,15 @@ struct HomeView: View {
 
                 Spacer()
             }
+            .padding(.bottom, 70)
 
             NavigationLink(destination: TripListView(viewModel: viewModel), isActive: $showTripList) {
                 EmptyView()
             }
             NavigationLink(destination: StationSelectionView(viewModel: viewModel), isActive: $showStationSelection) {
+                EmptyView()
+            }
+            NavigationLink(destination: AboutView(scheduleDate: viewModel.schedule.scheduleDate), isActive: $showAbout) {
                 EmptyView()
             }
         }

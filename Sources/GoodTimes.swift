@@ -6,9 +6,24 @@ struct GoodTimes {
     let seconds: Int
     let dotw: Int
 
+    // TEMPORARY DEBUG HACK: set to override "now" for testing (e.g. early morning).
+    // Set to nil for normal behavior. Format: minutes since midnight, e.g. 330 = 5:30am.
+    static var debugOverrideMinutes: Int? = nil
+
     init(date: Date = Date()) {
         let run = date.addingTimeInterval(-2 * 3600)
         let cal = Calendar.current
+
+        if let overrideMinutes = GoodTimes.debugOverrideMinutes {
+            self.minutes = overrideMinutes
+            self.seconds = 0
+            self.dotw = cal.component(.weekday, from: run) - 1
+            let fmt = DateFormatter()
+            fmt.dateFormat = "yyyy-MM-dd"
+            self.date = fmt.string(from: run)
+            return
+        }
+
         let h = cal.component(.hour, from: run)
         let m = cal.component(.minute, from: run)
         let s = cal.component(.second, from: run)
