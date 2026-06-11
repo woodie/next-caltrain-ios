@@ -10,20 +10,22 @@ struct TimeWidthKey: PreferenceKey {
 struct TripRow: View {
     let trip: Trip
     let isNext: Bool
-    let isPast: Bool
+    let isInactive: Bool
+    let isFuture: Bool
     let isDeparting: Bool
     let swapped: Bool
     var timeColumnWidth: CGFloat = 0
 
     var textColor: Color {
-        if isPast      { return .calPast }
+        if isInactive { return .calPast }
         if swapped     { return .calPast }
         return .white
     }
 
     var borderColor: Color {
         if isNext && isDeparting { return .calDepart }
-        if isNext && isPast      { return .calSwapped }
+        if isNext && isFuture    { return .calArrive }
+        if isNext && isInactive  { return .calSwapped }
         if isNext && swapped     { return .calSwapped }
         if isNext                { return .calArrive }
         return .clear

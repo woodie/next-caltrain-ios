@@ -29,6 +29,11 @@ struct TripListView: View {
         return viewModel.goodTimes.inThePast(trip.depart)
     }
 
+    var isSelectedFuture: Bool {
+        guard let trip = selectedTrip else { return false }
+        return trip.isFuture
+    }
+
     var isSelectedDeparting: Bool {
         guard let trip = selectedTrip else { return false }
         return viewModel.goodTimes.departing(trip.depart)
@@ -42,13 +47,16 @@ struct TripListView: View {
     var statusColor: Color {
         if viewModel.trips.isEmpty { return .calPast }
         if viewModel.swapped     { return .calSwapped }
-        if isSelectedPast        { return .calPast }
+        if isSelectedPast || isSelectedFuture { return .calPast }
         if isSelectedDeparting   { return .calDepart }
         return .calArrive
     }
 
     var statusText: String {
         if viewModel.trips.isEmpty { return "NO TRAINS" }
+        if isSelectedFuture {
+            return "\(viewModel.tomorrowScheduleType.label) Schedule"
+        }
         if viewModel.swapped || isSelectedPast {
             return "\(viewModel.scheduleType.label) Schedule"
         }
@@ -82,11 +90,19 @@ struct TripListView: View {
         return slot == 0 && !viewModel.swapped
     }
 
-    func isPast(_ slot: Int) -> Bool {
+    func isInactive(_ slot: Int) -> Bool {
         if viewModel.swapped { return false }
         let idx = effectiveOffset + slot
         guard idx < viewModel.trips.count else { return false }
-        return viewModel.goodTimes.inThePast(viewModel.trips[idx].depart)
+        let trip = viewModel.trips[idx]
+        if trip.isFuture { return true }
+        return viewModel.goodTimes.inThePast(trip.depart)
+    }
+
+    func isFuture(_ slot: Int) -> Bool {
+        let idx = effectiveOffset + slot
+        guard idx < viewModel.trips.count else { return false }
+        return viewModel.trips[idx].isFuture
     }
 
     func isDepartingSlot(_ slot: Int) -> Bool {
@@ -219,7 +235,8 @@ struct TripListView: View {
                     TripRow(
                         trip: trip,
                         isNext: isNext(slot),
-                        isPast: isPast(slot),
+                        isInactive: isInactive(slot),
+                        isFuture: isFuture(slot),
                         isDeparting: isDepartingSlot(slot),
                         swapped: viewModel.swapped,
                         timeColumnWidth: timeColumnWidth

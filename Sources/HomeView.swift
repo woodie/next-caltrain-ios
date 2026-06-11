@@ -27,6 +27,11 @@ struct HomeView: View {
         return viewModel.goodTimes.inThePast(trip.depart)
     }
 
+    var isSelectedFuture: Bool {
+        guard let trip = selectedTrip else { return false }
+        return trip.isFuture
+    }
+
     var isSelectedDeparting: Bool {
         guard let trip = selectedTrip else { return false }
         return viewModel.goodTimes.departing(trip.depart)
@@ -34,6 +39,7 @@ struct HomeView: View {
 
     var ringColor: Color {
         if noTrainsAtAll { return .calSwapped }
+        if isSelectedFuture { return .calArrive }
         if viewModel.swapped || isSelectedPast { return .calSwapped }
         if isSelectedDeparting { return .calDepart }
         return .calArrive
@@ -129,7 +135,11 @@ struct HomeView: View {
                                 .animation(.easeInOut(duration: 0.5), value: blinkOn)
                         } else {
                             // blurb-hero
-                            if isSelectedDeparting {
+                            if isSelectedFuture {
+                                Text(viewModel.tomorrowScheduleType.label)
+                                    .foregroundColor(.calPast)
+                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                            } else if isSelectedDeparting {
                                 Text("DEPARTING")
                                     .foregroundColor(.calDepart)
                                     .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
@@ -152,7 +162,7 @@ struct HomeView: View {
 
                             // train-hero + time-hero + meridiem-hero
                             if let trip = selectedTrip {
-                                let infoColor: Color = (viewModel.swapped || isSelectedPast) ? .calPast : .white
+                                let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .white
                                 let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
                                 VStack(spacing: 2) {
                                     HStack(alignment: .lastTextBaseline, spacing: 3) {

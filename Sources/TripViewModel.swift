@@ -19,6 +19,11 @@ class TripViewModel: ObservableObject {
     private let kStopAM = "stopAM"
     private let kStopPM = "stopPM"
 
+    /// Minutes-since-midnight offset applied to "tomorrow"'s trips so their
+    /// depart/arrive times sort after today's and produce correct countdowns.
+    /// Trips from the appended block are marked via `Trip.isFuture`.
+    static let dayMinutes = 1440
+
     var swapped: Bool {
         let today = CaltrainSchedule.optionIndex(
             date: goodTimes.date,
@@ -26,6 +31,16 @@ class TripViewModel: ObservableObject {
             specialDates: schedule.specialDates
         )
         return scheduleType != today
+    }
+
+    /// The schedule type for tomorrow's date (used for trips appended after
+    /// today's, identified by `Trip.depart >= TripViewModel.dayMinutes`).
+    var tomorrowScheduleType: ScheduleType {
+        return CaltrainSchedule.optionIndex(
+            date: goodTimes.tomorrowDate,
+            dotw: goodTimes.tomorrowDotw,
+            specialDates: schedule.specialDates
+        )
     }
 
     var serviceLabel: String {
@@ -42,6 +57,13 @@ class TripViewModel: ObservableObject {
     var isDeparting: Bool {
         guard offset < trips.count else { return false }
         return goodTimes.departing(trips[offset].depart)
+    }
+
+    /// True if the currently-selected trip belongs to "tomorrow" (appended,
+    /// shifted-by-dayMinutes trips).
+    var isFutureSelected: Bool {
+        guard offset < trips.count else { return false }
+        return trips[offset].isFuture
     }
 
     private var isFlipped: Bool {
@@ -96,9 +118,33 @@ class TripViewModel: ObservableObject {
             }
     }
 
+    /// Returns a copy of `trip` with all leg-depart times and the final arrival
+    /// shifted forward by `TripViewModel.dayMinutes`, used to represent a
+    /// "tomorrow" trip appended after today's schedule.
+    private func shiftedToTomorrow(_ trip: Trip) -> Trip {
+        let shiftedLegs = trip.legs.map { leg in
+            Leg(trainId: leg.trainId, station: leg.station, depart: leg.depart + TripViewModel.dayMinutes)
+        }
+        return Trip(id: trip.id, legs: shiftedLegs, arrive: trip.arrive + TripViewModel.dayMinutes, isFuture: true)
+    }
+
     func refresh() {
-        trips = service.routes(from: origin, to: destination, scheduleType: scheduleType)
+        let todayTrips = service.routes(from: origin, to: destination, scheduleType: scheduleType)
+        let tomorrowTrips = service.routes(from: origin, to: destination, scheduleType: tomorrowScheduleType)
+            .map(shiftedToTomorrow)
+
+        trips = todayTrips + tomorrowTrips
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
+        print("[TripViewModel] refresh: minutes=\(goodTimes.minutes) " +
+              "scheduleType=\(scheduleType.label) tomorrowScheduleType=\(tomorrowScheduleType.label) " +
+              "todayTrips=\(todayTrips.count) tomorrowTrips=\(tomorrowTrips.count) " +
+              "nextIndex=\(nextIndex) totalTrips=\(trips.count)")
+        if !todayTrips.isEmpty {
+            print("[TripViewModel] today first.depart=\(todayTrips.first!.depart) last.depart=\(todayTrips.last!.depart)")
+        }
+        if !tomorrowTrips.isEmpty {
+            print("[TripViewModel] tomorrow(shifted) first.depart=\(tomorrowTrips.first!.depart) last.depart=\(tomorrowTrips.last!.depart)")
+        }
         userSelected = false
         offset = nextIndex
         if offset >= trips.count { offset = max(0, trips.count - 1) }

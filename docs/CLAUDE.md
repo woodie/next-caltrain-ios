@@ -80,3 +80,50 @@ iteration.
   is the reference — compare its `direction()`/`select()`/`times()`/`merge()`
   against the Swift `CaltrainService.swift` equivalents when something
   doesn't match.
+
+## Workflow reminders
+
+- After every file edit, always provide the copy-paste command:
+  ```
+  mv ~/Downloads/<Files> Sources/   # or tools/, assets/, etc.
+  ./build.sh && ./emulate.sh
+  ```
+  Don't omit this even if it was given recently — always include it with each
+  set of changed files.
+
+- When Claude needs the contents of a file it doesn't have, ask for it via:
+  ```
+  cat <filename> | pbcopy
+  ```
+  (one file per command, or one command listing multiple filenames if the
+  user is sending several files at once).
+
+## Lessons from layout debugging
+
+- **`.navigationBarHidden(true)` on a pushed view (via `NavigationLink`) does
+  not preserve the safe-area top inset**, even though the same modifier on a
+  root view (like Home) does. A pushed view's content can render flush under
+  the status bar/notch despite normal `.padding(.top, ...)`.
+  - Symptom: toolbar icons render under the clock and become untappable.
+  - Fix that worked: structure the pushed view's body **identically** to the
+    working root view — toolbar `HStack` as the literal first child of the
+    outermost `VStack(spacing: 0)`, with plain `.padding(.top, 8)`, no extra
+    wrapper views, no `GeometryReader`, no `.safeAreaInset`, no
+    `.frame(maxHeight:...)`. Matching the structure exactly (not just the
+    padding values) is what fixes it — partial matches can still misbehave.
+  - Avoid going down the rabbit hole of `.safeAreaInset(edge: .top)`,
+    `UIApplication`-derived status bar height, or large fixed padding values
+    — these either don't apply, get clipped, or cause the whole view to
+    center/bottom-align unexpectedly.
+
+- **Toolbar-vs-content layout pattern**: pin the toolbar as a fixed-height,
+  non-flexible `HStack` (no `Spacer()` that could absorb extra space) at the
+  top of the outer `VStack`. Put everything else (back button, headers,
+  scrollable/list content) in a separate block below it. This avoids fights
+  over who "owns" vertical space.
+
+- **Constrain content instead of fighting for header space**: rather than
+  squeezing every pixel for a header/toolbar against a content area that
+  wants to grow (e.g. a long trip list), cap the content's row count so
+  there's natural slack at the bottom. For TripListView, 17 rows fits the
+  screen with a little breathing room below.

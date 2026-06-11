@@ -12,6 +12,7 @@ struct Trip: Identifiable {
     let id: Int       // lead train ID
     let legs: [Leg]
     let arrive: Int   // arrival at final destination (minutes since midnight)
+    var isFuture: Bool = false  // true if this trip belongs to the appended "tomorrow" block
 
     var depart: Int { legs.first!.depart }
     var isTransfer: Bool { legs.count > 1 }

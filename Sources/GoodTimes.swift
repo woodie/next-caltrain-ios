@@ -5,22 +5,42 @@ struct GoodTimes {
     let minutes: Int
     let seconds: Int
     let dotw: Int
+    let tomorrowDate: String
+    let tomorrowDotw: Int
 
     // TEMPORARY DEBUG HACK: set to override "now" for testing (e.g. early morning).
     // Set to nil for normal behavior. Format: minutes since midnight, e.g. 330 = 5:30am.
     static var debugOverrideMinutes: Int? = nil
 
+    // TEMPORARY DEBUG HACK: set to override the day-of-week for testing
+    // (e.g. force "today" to be Friday so tomorrow is Saturday/weekend).
+    // 0 = Sunday ... 6 = Saturday. Set to nil for normal behavior.
+    static var debugOverrideDotw: Int? = nil
+
+    // TEMPORARY DEBUG HACK: prints computed values once on first init, useful
+    // when testing debugOverrideMinutes/debugOverrideDotw.
+    private static var didLog = false
+
     init(date: Date = Date()) {
         let run = date.addingTimeInterval(-2 * 3600)
         let cal = Calendar.current
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: run)!
+
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd"
+
+        let realDotw = cal.component(.weekday, from: run) - 1
+        let dotw = GoodTimes.debugOverrideDotw ?? realDotw
+        let tomorrowDotw = (dotw + 1) % 7
 
         if let overrideMinutes = GoodTimes.debugOverrideMinutes {
             self.minutes = overrideMinutes
             self.seconds = 0
-            self.dotw = cal.component(.weekday, from: run) - 1
-            let fmt = DateFormatter()
-            fmt.dateFormat = "yyyy-MM-dd"
+            self.dotw = dotw
             self.date = fmt.string(from: run)
+            self.tomorrowDate = fmt.string(from: tomorrow)
+            self.tomorrowDotw = tomorrowDotw
+            GoodTimes.logOnce(self)
             return
         }
 
@@ -29,16 +49,27 @@ struct GoodTimes {
         let s = cal.component(.second, from: run)
         self.minutes = (h + 2) * 60 + m
         self.seconds = s
-        self.dotw = cal.component(.weekday, from: run) - 1
-        let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy-MM-dd"
+        self.dotw = dotw
         self.date = fmt.string(from: run)
+        self.tomorrowDate = fmt.string(from: tomorrow)
+        self.tomorrowDotw = tomorrowDotw
+        GoodTimes.logOnce(self)
+    }
+
+    private static func logOnce(_ gt: GoodTimes) {
+        guard !didLog else { return }
+        didLog = true
+        let (t, mer) = GoodTimes.partTime(gt.minutes)
+        print("[GoodTimes] minutes=\(gt.minutes) (\(t)\(mer)) seconds=\(gt.seconds) " +
+              "dotw=\(gt.dotw) date=\(gt.date) tomorrowDotw=\(gt.tomorrowDotw) tomorrowDate=\(gt.tomorrowDate) " +
+              "debugOverrideMinutes=\(String(describing: debugOverrideMinutes)) " +
+              "debugOverrideDotw=\(String(describing: debugOverrideDotw))")
     }
 
     // MARK: - Static formatting
 
     static func partTime(_ minutes: Int) -> (String, String) {
-        var hrs = minutes / 60
+        var hrs = (minutes / 60) % 24
         let min = minutes % 60
         let mer = (hrs > 11 && hrs < 24) ? "pm" : "am"
         if hrs > 12 { hrs -= 12 }
