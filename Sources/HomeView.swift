@@ -66,15 +66,12 @@ struct HomeView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // toolbar — real time (left), reset (conditional) + swap (right)
+                // toolbar — app name (left), reset (conditional) + swap (right)
                 HStack {
-
-                    // app name — centered below the icon row
                     Text("Next Caltrain")
                         .foregroundColor(.white)
                         .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
                         .frame(height: AppStyle.iconButtonSize)
-                        .padding(.top, 16)
                         .contentShape(Rectangle())
                         .onTapGesture { showAbout = true }
 
@@ -213,5 +210,6 @@ struct HomeView: View {
             }
         }
         .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
     }
 }

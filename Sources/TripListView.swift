@@ -95,120 +95,8 @@ struct TripListView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             VStack(spacing: 0) {
-
-                // toolbar — back (left), reset (conditional) + swap (right)
-                HStack {
-                    // TODO: Restore once 2nd back button is gone
-
-                    //Button {
-                    //    dismiss()
-                    //} label: {
-                    //    Image(systemName: "chevron.left")
-                    //        .foregroundColor(.white)
-                    //        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                    //        .background(Circle().fill(Color.iconCircleBackground))
-                    //}
-
-                    Spacer()
-
-                    if viewModel.hasManualSelection {
-                        Button {
-                            viewModel.resetToNext()
-                        } label: {
-                            Image(systemName: "arrow.counterclockwise")
-                                .foregroundColor(.white)
-                                .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                                .background(Circle().fill(Color.iconCircleBackground))
-                        }
-                    }
-
-                    Button {
-                        viewModel.swapStations()
-                    } label: {
-                        Image(systemName: "arrow.left.arrow.right")
-                            .foregroundColor(.white)
-                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                            .background(Circle().fill(Color.iconCircleBackground))
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                // service type label — same size/position as HomeView's bottom label
-                Text(serviceTypeLabel)
-                    .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontTripType, weight: .regular))
-                    .padding(.top, 8)
-
-                // origin / destination
-                VStack(spacing: 2) {
-                    Text(line1)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
-                        .foregroundColor(.white)
-                    Text(line2)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
-                        .foregroundColor(.white)
-                }
-                .padding(.top, 4)
-                .contentShape(Rectangle())
-                .onTapGesture { showStationSelection = true }
-
-                // blurb — updates live during drag
-                Text(statusText)
-                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
-                    .foregroundColor(statusColor)
-                    .opacity(isSelectedDeparting ? (blinkOn ? 1 : 0) : 1)
-                    .animation(.easeInOut(duration: 0.5), value: blinkOn)
-                    .padding(.top, 4)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .onTapGesture { viewModel.cycleSchedule() }
-
-                // Static trip slots
-                VStack(spacing: 0) {
-                    ForEach(0..<min(20, max(viewModel.trips.count, 1)), id: \.self) { slot in
-                        if let trip = tripAt(slot) {
-                            TripRow(
-                                trip: trip,
-                                isNext: isNext(slot),
-                                isPast: isPast(slot),
-                                isDeparting: isDepartingSlot(slot),
-                                swapped: viewModel.swapped,
-                                timeColumnWidth: timeColumnWidth
-                            )
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if !suppressTap {
-                                    navigateToTrip = trip
-                                }
-                            }
-                        }
-                    }
-                }
-                .onPreferenceChange(TimeWidthKey.self) { width in
-                    timeColumnWidth = width
-                }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 10)
-                        .onChanged { value in
-                            suppressTap = true
-                            let newShift = -Int((value.translation.height / rowHeight).rounded())
-                            let proposed = viewModel.offset + newShift
-                            if proposed >= 0 && proposed < viewModel.trips.count {
-                                dragShift = newShift
-                            }
-                        }
-                        .onEnded { _ in
-                            viewModel.setOffset(effectiveOffset)
-                            dragShift = 0
-                            // Allow taps again shortly after drag ends
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                suppressTap = false
-                            }
-                        }
-                )
-                .padding(.top, 8)
-
+                header
+                tripList
                 Spacer()
             }
 
@@ -235,10 +123,136 @@ struct TripListView: View {
                 EmptyView()
             }
         }
-        // TODO: Fix nav icon mayhem
-        //.navigationBarHidden(true)
+        .navigationBarHidden(true)
         .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
             blinkOn = isSelectedDeparting ? !blinkOn : true
         }
+    }
+
+    // Header: top inset, toolbar, back/origin/destination, status blurb
+    private var header: some View {
+        VStack(spacing: 0) {
+            // toolbar — TripType (left), reset (optional, almost-right), swap (right)
+            HStack {
+                Text(serviceTypeLabel)
+                    .foregroundColor(.white)
+                    .font(.system(size: AppStyle.fontTripType, weight: .regular))
+
+                Spacer()
+
+                if viewModel.hasManualSelection {
+                    Button {
+                        viewModel.resetToNext()
+                    } label: {
+                        Image(systemName: "arrow.counterclockwise")
+                            .foregroundColor(.white)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
+                }
+
+                Button {
+                    viewModel.swapStations()
+                } label: {
+                    Image(systemName: "arrow.left.arrow.right")
+                        .foregroundColor(.white)
+                        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                        .background(Circle().fill(Color.iconCircleBackground))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+
+            // back button (left) + origin / destination (centered)
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                        .background(Circle().fill(Color.iconCircleBackground))
+                }
+
+                Spacer()
+
+                VStack(spacing: 2) {
+                    Text(line1)
+                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .foregroundColor(.white)
+                    Text(line2)
+                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .foregroundColor(.white)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { showStationSelection = true }
+
+                Spacer()
+
+                // balance the back button's width so the station text stays centered
+                Color.clear
+                    .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+
+            // blurb — updates live during drag
+            Text(statusText)
+                .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                .foregroundColor(statusColor)
+                .opacity(isSelectedDeparting ? (blinkOn ? 1 : 0) : 1)
+                .animation(.easeInOut(duration: 0.5), value: blinkOn)
+                .padding(.top, 4)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+                .onTapGesture { viewModel.cycleSchedule() }
+        }
+    }
+
+    // Trip list: fixed number of static rows below the header
+    private var tripList: some View {
+        VStack(spacing: 0) {
+            ForEach(0..<min(17, max(viewModel.trips.count, 1)), id: \.self) { slot in
+                if let trip = tripAt(slot) {
+                    TripRow(
+                        trip: trip,
+                        isNext: isNext(slot),
+                        isPast: isPast(slot),
+                        isDeparting: isDepartingSlot(slot),
+                        swapped: viewModel.swapped,
+                        timeColumnWidth: timeColumnWidth
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if !suppressTap {
+                            navigateToTrip = trip
+                        }
+                    }
+                }
+            }
+        }
+        .onPreferenceChange(TimeWidthKey.self) { width in
+            timeColumnWidth = width
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { value in
+                    suppressTap = true
+                    let newShift = -Int((value.translation.height / rowHeight).rounded())
+                    let proposed = viewModel.offset + newShift
+                    if proposed >= 0 && proposed < viewModel.trips.count {
+                        dragShift = newShift
+                    }
+                }
+                .onEnded { _ in
+                    viewModel.setOffset(effectiveOffset)
+                    dragShift = 0
+                    // Allow taps again shortly after drag ends
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        suppressTap = false
+                    }
+                }
+        )
+        .padding(.top, 8)
     }
 }
