@@ -44,13 +44,23 @@ struct StationSelectionView: View {
         viewModel.refresh()
     }
 
-    var isAlreadyDefault: Bool {
-        let s = viewModel.schedule.southStops
+    func stationName(_ idx: Int) -> String {
+        let index: Int = idx < viewModel.schedule.southStops.count ? idx : 0
+        return viewModel.schedule.southStops[index]
+    }
+
+    func restoreDefaults() {
         let savedAM = (UserDefaults.standard.object(forKey: "stopAM") as? Int) ?? 15
         let savedPM = (UserDefaults.standard.object(forKey: "stopPM") as? Int) ?? 0
-        guard savedAM < s.count, savedPM < s.count else { return false }
-        let defaultMorning = s[savedAM]
-        let defaultEvening = s[savedPM]
+        setMorningStation(stationName(savedAM))
+        setEveningStation(stationName(savedPM))
+    }
+
+    var isAlreadyDefault: Bool {
+        let savedAM = (UserDefaults.standard.object(forKey: "stopAM") as? Int) ?? 15
+        let savedPM = (UserDefaults.standard.object(forKey: "stopPM") as? Int) ?? 0
+        let defaultMorning = stationName(savedAM)
+        let defaultEvening = stationName(savedPM)
         return morningStation == defaultMorning && eveningStation == defaultEvening
     }
 
@@ -161,7 +171,7 @@ struct StationSelectionView: View {
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     dismiss()
                 } label: {
@@ -170,6 +180,17 @@ struct StationSelectionView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
+                if !isAlreadyDefault {
+                    Button {
+                        restoreDefaults()
+                    } label: {
+                        Image(systemName: "arrow.counterclockwise")
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
                 if !isAlreadyDefault {
                     Button {
                         showSaveConfirm = true

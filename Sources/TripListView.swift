@@ -98,14 +98,16 @@ struct TripListView: View {
 
                 // toolbar — back (left), reset (conditional) + swap (right)
                 HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                            .background(Circle().fill(Color.iconCircleBackground))
-                    }
+                    // TODO: Restore once 2nd back button is gone
+
+                    //Button {
+                    //    dismiss()
+                    //} label: {
+                    //    Image(systemName: "chevron.left")
+                    //        .foregroundColor(.white)
+                    //        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                    //        .background(Circle().fill(Color.iconCircleBackground))
+                    //}
 
                     Spacer()
 
@@ -233,7 +235,8 @@ struct TripListView: View {
                 EmptyView()
             }
         }
-        .navigationBarHidden(true)
+        // TODO: Fix nav icon mayhem
+        //.navigationBarHidden(true)
         .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
             blinkOn = isSelectedDeparting ? !blinkOn : true
         }
