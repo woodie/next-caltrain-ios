@@ -68,10 +68,15 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 // toolbar — real time (left), reset (conditional) + swap (right)
                 HStack {
-                    Text(viewModel.goodTimes.fullTime())
+
+                    // app name — centered below the icon row
+                    Text("Next Caltrain")
                         .foregroundColor(.white)
                         .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
                         .frame(height: AppStyle.iconButtonSize)
+                        .padding(.top, 16)
+                        .contentShape(Rectangle())
+                        .onTapGesture { showAbout = true }
 
                     Spacer()
 
@@ -97,15 +102,6 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
-
-                // app name — centered below the icon row
-                Text("Next Caltrain")
-                    .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 16)
-                    .contentShape(Rectangle())
-                    .onTapGesture { showAbout = true }
 
                 Spacer()
 
