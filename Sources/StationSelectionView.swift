@@ -175,7 +175,7 @@ struct StationSelectionView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image(systemName: "xmark")
+                    Image(systemName: "chevron.left")
                         .foregroundColor(.white)
                 }
             }
@@ -201,16 +201,16 @@ struct StationSelectionView: View {
                 }
             }
         }
-        .alert("Save Default Stations", isPresented: $showSaveConfirm) {
+        .alert("Stations Defaults", isPresented: $showSaveConfirm) {
             Button("Save") {
                 viewModel.saveStops()
                 dismiss()
             }
-            Button("Don't Save", role: .cancel) {
+            Button("Cancel", role: .cancel) {
                 dismiss()
             }
         } message: {
-            Text("Save \(morningStation) as your morning departure and \(eveningStation) as your evening departure?")
+            Text("Save \(morningStation) as morning and \(eveningStation) as evening default stations?")
         }
     }
 }
