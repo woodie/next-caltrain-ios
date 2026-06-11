@@ -17,6 +17,15 @@ import sys
 from datetime import date
 from pathlib import Path
 
+CSV_FILES = [
+    "weekday_north.csv",
+    "weekday_south.csv",
+    "weekend_north.csv",
+    "weekend_south.csv",
+    "modified_north.csv",
+    "modified_south.csv",
+]
+
 def load_special_dates(data_dir):
     """Parse special dates from holiday_service.js in data_dir."""
     today = date.today().isoformat()
@@ -57,6 +66,20 @@ def read_csv(path):
     return stations, trains
 
 
+def latest_mtime_ms(data_dir):
+    """Return the most recent mtime (in epoch ms) among the schedule CSVs.
+
+    Mirrors the PWA's `scheduleDate` field, which uses the GTFS
+    stop_times.txt mtime as a freshness/version marker.
+    """
+    latest = 0.0
+    for name in CSV_FILES:
+        path = data_dir / name
+        if path.exists():
+            latest = max(latest, path.stat().st_mtime)
+    return int(latest * 1000)
+
+
 def main():
     data_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("../next-caltrain-pwa/data")
     out_file = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("assets/schedule.json")
@@ -71,6 +94,8 @@ def main():
     _, modified_north = read_csv(data_dir / "modified_north.csv")
     _, modified_south = read_csv(data_dir / "modified_south.csv")
 
+    schedule_date = latest_mtime_ms(data_dir)
+
     schedule = {
         "specialDates": special_dates,
         "northStops": north_stations,
@@ -81,6 +106,7 @@ def main():
         "southWeekday":  {str(k): v for k, v in weekday_south.items()},
         "southWeekend":  {str(k): v for k, v in weekend_south.items()},
         "southModified": {str(k): v for k, v in modified_south.items()},
+        "scheduleDate": schedule_date,
     }
 
     out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -89,6 +115,7 @@ def main():
 
     size = out_file.stat().st_size
     print(f"Written to {out_file} ({size:,} bytes)")
+    print(f"scheduleDate: {schedule_date}")
 
 
 if __name__ == "__main__":
