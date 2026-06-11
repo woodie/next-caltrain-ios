@@ -29,14 +29,20 @@ struct CaltrainService {
 
     // MARK: - Public
 
-    // NOTE: South County <-> electric transfer routing has been removed for now.
-    // The previous implementation incorrectly treated any trip touching a South
-    // County station as needing a transfer (even SC-to-SC trips), and the
-    // electric/SC table+stop-list pairing for transfers needs more investigation.
-    // See git history (CaltrainService.swift, transferRoutes/needsTransfer) to
-    // restore/rework this later.
     func routes(from depart: String, to arrive: String, scheduleType: ScheduleType) -> [Trip] {
-        return directRoutes(from: depart, to: arrive, scheduleType: scheduleType)
+        let departIsSC = CaltrainService.southCountyStations.contains(depart)
+        let arriveIsSC = CaltrainService.southCountyStations.contains(arrive)
+
+        // A transfer is only needed when crossing the South County / electric
+        // boundary, i.e. exactly one endpoint is in South County. SC-to-SC
+        // trips (and electric-to-electric trips) are direct.
+        let needsTransfer = scheduleType == .weekday && (departIsSC != arriveIsSC)
+
+        if needsTransfer {
+            return transferRoutes(from: depart, to: arrive, scheduleType: scheduleType)
+        } else {
+            return directRoutes(from: depart, to: arrive, scheduleType: scheduleType)
+        }
     }
 
     func nextIndex(trips: [Trip], minutes: Int) -> Int {
@@ -64,6 +70,93 @@ struct CaltrainService {
             trips.append(Trip(id: trainId, legs: [leg], arrive: arriveTime))
         }
         return trips.sorted { $0.depart < $1.depart }
+    }
+
+    private func transferRoutes(from origin: String, to destination: String, scheduleType: ScheduleType) -> [Trip] {
+        let direction = CaltrainService.direction(from: origin, to: destination, stops: schedule.southStops)
+        let transfer = CaltrainService.transferStation
+        let stops = direction == "North" ? schedule.northStops : schedule.southStops
+        let source = select(direction: direction, scheduleType: scheduleType)
+
+        guard let originIdx = stops.firstIndex(of: origin),
+              let transferIdx = stops.firstIndex(of: transfer),
+              let destIdx = stops.firstIndex(of: destination) else { return [] }
+
+        if direction == "North" {
+            // Northbound: SC train from origin → San Jose Diridon,
+            // then electric train from San Jose Diridon → destination.
+            // For each SC train, find the first electric that departs after SC arrives.
+            var scTrains: [(trainId: Int, departOrigin: Int, arriveTransfer: Int)] = []
+            for (trainKey, times) in source {
+                guard let trainId = Int(trainKey),
+                      CaltrainService.isSouthCounty(trainId),
+                      originIdx < times.count,
+                      transferIdx < times.count,
+                      let departTime = times[originIdx],
+                      let arriveTime = times[transferIdx] else { continue }
+                scTrains.append((trainId, departTime, arriveTime))
+            }
+            scTrains.sort { $0.departOrigin < $1.departOrigin }
+
+            var elTrains: [(trainId: Int, departTransfer: Int, arriveDestination: Int)] = []
+            for (trainKey, times) in source {
+                guard let trainId = Int(trainKey),
+                      !CaltrainService.isSouthCounty(trainId),
+                      transferIdx < times.count,
+                      destIdx < times.count,
+                      let departTime = times[transferIdx],
+                      let arriveTime = times[destIdx] else { continue }
+                elTrains.append((trainId, departTime, arriveTime))
+            }
+            elTrains.sort { $0.departTransfer < $1.departTransfer }
+
+            var trips: [Trip] = []
+            for sc in scTrains {
+                guard let el = elTrains.first(where: { $0.departTransfer >= sc.arriveTransfer }) else { continue }
+                let leg1 = Leg(trainId: sc.trainId, station: origin, depart: sc.departOrigin)
+                let leg2 = Leg(trainId: el.trainId, station: transfer, depart: el.departTransfer)
+                trips.append(Trip(id: sc.trainId, legs: [leg1, leg2], arrive: el.arriveDestination))
+            }
+            return trips
+
+        } else {
+            // Southbound: electric train from origin → San Jose Diridon,
+            // then SC train from San Jose Diridon → destination.
+            // For each SC train, find the last electric that arrives before SC departs.
+            var scTrains: [(trainId: Int, departTransfer: Int, arriveDestination: Int)] = []
+            for (trainKey, times) in source {
+                guard let trainId = Int(trainKey),
+                      CaltrainService.isSouthCounty(trainId),
+                      transferIdx < times.count,
+                      destIdx < times.count,
+                      let departTime = times[transferIdx],
+                      let arriveTime = times[destIdx] else { continue }
+                scTrains.append((trainId, departTime, arriveTime))
+            }
+            scTrains.sort { $0.departTransfer < $1.departTransfer }
+
+            var elTrains: [(trainId: Int, departOrigin: Int, arriveTransfer: Int)] = []
+            for (trainKey, times) in source {
+                guard let trainId = Int(trainKey),
+                      !CaltrainService.isSouthCounty(trainId),
+                      originIdx < times.count,
+                      transferIdx < times.count,
+                      let departTime = times[originIdx],
+                      let arriveTime = times[transferIdx] else { continue }
+                elTrains.append((trainId, departTime, arriveTime))
+            }
+            elTrains.sort { $0.departOrigin < $1.departOrigin }
+
+            var trips: [Trip] = []
+            for sc in scTrains {
+                // Last electric that arrives at SJ before SC departs
+                guard let el = elTrains.last(where: { $0.arriveTransfer <= sc.departTransfer }) else { continue }
+                let leg1 = Leg(trainId: el.trainId, station: origin, depart: el.departOrigin)
+                let leg2 = Leg(trainId: sc.trainId, station: transfer, depart: sc.departTransfer)
+                trips.append(Trip(id: el.trainId, legs: [leg1, leg2], arrive: sc.arriveDestination))
+            }
+            return trips.sorted { $0.depart < $1.depart }
+        }
     }
 
     // MARK: - Helpers
