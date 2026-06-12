@@ -35,9 +35,9 @@ struct TripRow: View {
         let (t, mer) = GoodTimes.partTime(minutes)
         return HStack(alignment: .lastTextBaseline, spacing: 1) {
             Text(t)
-                .font(.system(size: AppStyle.fontTrainTime, weight: .regular))
+                .font(.system(size: AppStyle.fontBlurb, weight: .regular))
             Text(mer)
-                .font(.system(size: AppStyle.fontMeridiem, weight: .regular))
+                .font(.system(size: AppStyle.fontTrain, weight: .regular))
         }
         .foregroundColor(textColor)
         .fixedSize(horizontal: true, vertical: false)
@@ -53,7 +53,7 @@ struct TripRow: View {
         HStack(alignment: .lastTextBaseline, spacing: 24) {
             Text("#\(trip.legs.first!.trainId)")
                 .foregroundColor(textColor)
-                .font(.system(size: AppStyle.fontTrainNumber, weight: .regular))
+                .font(.system(size: AppStyle.fontTrain, weight: .regular))
                 .frame(width: 58, alignment: .leading)
             timeView(trip.depart)
             timeView(trip.arrive)

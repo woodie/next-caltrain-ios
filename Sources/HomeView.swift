@@ -77,7 +77,7 @@ struct HomeView: View {
                 HStack {
                     Text("Next Caltrain")
                         .foregroundColor(.white)
-                        .font(.system(size: AppStyle.fontStatusBar, weight: .bold))
+                        .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
                         .frame(height: AppStyle.iconButtonSize)
                         .contentShape(Rectangle())
                         .onTapGesture { showAbout = true }
@@ -119,10 +119,10 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             Text(line1)
                                 .foregroundColor(.white)
-                                .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                                .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                             Text(line2)
                                 .foregroundColor(.white)
-                                .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                                .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         }
                         .contentShape(Rectangle())
                         .onTapGesture { showStationSelection = true }
@@ -130,7 +130,7 @@ struct HomeView: View {
                         if noTrainsAtAll {
                             Text("NO TRAINS")
                                 .foregroundColor(.calPast)
-                                .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                                 .opacity(blinkOn ? 1 : 0)
                                 .animation(.easeInOut(duration: 0.5), value: blinkOn)
                         } else {
@@ -138,23 +138,23 @@ struct HomeView: View {
                             if isSelectedFuture {
                                 Text(viewModel.tomorrowScheduleType.label)
                                     .foregroundColor(.calPast)
-                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                             } else if isSelectedDeparting {
                                 Text("DEPARTING")
                                     .foregroundColor(.calDepart)
-                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                                     .opacity(blinkOn ? 1 : 0)
                                     .animation(.easeInOut(duration: 0.5), value: blinkOn)
                             } else if viewModel.swapped || isSelectedPast {
                                 Text(viewModel.scheduleType.label)
                                     .foregroundColor(.calPast)
-                                    .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                             } else if let trip = selectedTrip {
                                 let c = viewModel.goodTimes.countdown(trip.depart)
                                 if !c.isEmpty {
                                     Text(c)
                                         .foregroundColor(.calArrive)
-                                        .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                                        .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                                         .lineLimit(1)
                                         .fixedSize(horizontal: true, vertical: false)
                                 }
@@ -168,17 +168,17 @@ struct HomeView: View {
                                     HStack(alignment: .lastTextBaseline, spacing: 3) {
                                         Text("#\(trip.legs.first!.trainId)")
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontTrainHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                         Text(timeStr)
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontTimeHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                                         Text(merStr)
                                             .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontMeridiemHero, weight: .regular))
+                                            .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                     }
                                     Text(CaltrainService.trainType(trip.legs.first!.trainId))
                                         .foregroundColor(.white)
-                                        .font(.system(size: AppStyle.fontTripType, weight: .regular))
+                                        .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                 }
                             }
                         }

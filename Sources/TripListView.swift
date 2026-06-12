@@ -154,7 +154,7 @@ struct TripListView: View {
             HStack {
                 Text(serviceTypeLabel)
                     .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontTripType, weight: .regular))
+                    .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
 
                 Spacer()
 
@@ -196,10 +196,10 @@ struct TripListView: View {
 
                 VStack(spacing: 2) {
                     Text(line1)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         .foregroundColor(.white)
                     Text(line2)
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         .foregroundColor(.white)
                 }
                 .contentShape(Rectangle())
@@ -216,7 +216,7 @@ struct TripListView: View {
 
             // blurb — updates live during drag
             Text(statusText)
-                .font(.system(size: AppStyle.fontBlurbHero, weight: .regular))
+                .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                 .foregroundColor(statusColor)
                 .opacity((isSelectedDeparting || viewModel.trips.isEmpty) ? (blinkOn ? 1 : 0) : 1)
                 .animation(.easeInOut(duration: 0.5), value: blinkOn)

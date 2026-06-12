@@ -48,7 +48,7 @@ struct StopRow: View {
             // station-time
             Text(GoodTimes.fullTime(time))
                 .foregroundColor(textColor)
-                .font(.system(size: AppStyle.fontStationTime, weight: .regular))
+                .font(.system(size: AppStyle.fontTrain, weight: .regular))
                 .frame(width: 75, alignment: .trailing)
 
             // station-spacer: vertical line + dot
@@ -69,12 +69,12 @@ struct StopRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(station)
                     .foregroundColor(textColor)
-                    .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                     .fixedSize(horizontal: true, vertical: false)
                 if let label = transferLabel {
                     Text(label)
                         .foregroundColor(.calPast)
-                        .font(.system(size: AppStyle.fontOriginHero - 2, weight: .regular))
+                        .font(.system(size: AppStyle.fontOrigin - 2, weight: .regular))
                         .fixedSize(horizontal: true, vertical: false)
                 }
             }
@@ -178,7 +178,7 @@ struct TripDetailView: View {
             VStack(spacing: 0) {
                 Text(title)
                     .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontOriginHero, weight: .bold))
+                    .font(.system(size: AppStyle.fontOrigin, weight: .bold))
                     .padding(.top, 16)
                     .padding(.bottom, 8)
 

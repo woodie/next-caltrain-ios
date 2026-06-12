@@ -9,28 +9,13 @@ extension Color {
     static let iconCircleBackground = Color(white: 0.15)               // toolbar icon button background
 }
 
-// MARK: - Font sizes (named after legacy CSS classes)
 enum AppStyle {
-    // Hero screen (.hero-screen)
-    static let fontOriginHero: CGFloat = 22   // .origin-hero / .destin-hero
-    static let fontBlurbHero: CGFloat  = 28   // #blurb-hero (countdown/status)
-    static let fontTrainHero: CGFloat  = 18   // .train-hero (#101)
-    static let fontTimeHero: CGFloat   = 28   // .time-hero (5:10)
-    static let fontMeridiemHero: CGFloat = 18 // .meridiem-hero (am/pm)
-    static let fontTripType: CGFloat   = 18   // #trip-type (Local)
-
-    // Grid screen (.grid-screen / TripRow)
-    static let fontTrainNumber: CGFloat = 16  // .train-number
-    static let fontTrainTime: CGFloat   = 27  // .train-time
-    static let fontMeridiem: CGFloat    = 18  // .meridiem
-
-    // Trip detail screen (.trip-screen / StopRow)
-    static let fontStationTime: CGFloat = 16  // .station-time
-    static let fontStationName: CGFloat = 16  // .station-name
-
-    // Status bar (#statusbar)
-    static let fontStatusBar: CGFloat   = 15  // #statusbar
+    // Home, List, Detail screens
+    static let fontTrain: CGFloat = 18
+    static let fontOrigin: CGFloat = 22
+    static let fontBlurb: CGFloat  = 28
 
     // Toolbar icon buttons (back, swap, reset)
+    static let fontStatusBar: CGFloat   = 18
     static let iconButtonSize: CGFloat  = 44
 }

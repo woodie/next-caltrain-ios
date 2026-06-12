@@ -70,7 +70,7 @@ struct StationSelectionView: View {
     func stationRow(_ station: String, selected: String, columnWidth: CGFloat) -> some View {
         Text(station)
             .foregroundColor(.white)
-            .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+            .font(.system(size: AppStyle.fontOrigin, weight: .regular))
             .fixedSize(horizontal: true, vertical: false)
             .background(
                 GeometryReader { geo in
@@ -109,7 +109,7 @@ struct StationSelectionView: View {
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: morningStation, columnWidth: morningRowWidth)
                             .listRowBackground(Color.black)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 16))
                             .id(station)
                             .onTapGesture {
                                 setMorningStation(station)
@@ -140,7 +140,7 @@ struct StationSelectionView: View {
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: eveningStation, columnWidth: eveningRowWidth)
                             .listRowBackground(Color.black)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 16))
                             .id(station)
                             .onTapGesture {
                                 setEveningStation(station)

@@ -41,15 +41,15 @@ struct AboutView: View {
                         .frame(width: 96, height: 96)
 
                     Text("Next Caltrain")
-                        .font(.system(size: AppStyle.fontOriginHero + 6, weight: .regular))
+                        .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                         .foregroundColor(.white)
 
                     Text("for iOS")
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         .foregroundColor(.white)
 
                     Text("© 2026 John Woodell")
-                        .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         .foregroundColor(.white)
                         .padding(.top, 8)
 
@@ -57,7 +57,7 @@ struct AboutView: View {
                         Text("Schedule data:")
                         Text(scheduleDateText)
                     }
-                    .font(.system(size: AppStyle.fontOriginHero, weight: .regular))
+                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                     .foregroundColor(.white)
                     .padding(.top, 8)
                 }
