@@ -51,8 +51,10 @@ iteration.
   `../next-caltrain-pwa/data/` into `schedule.json`. Includes a
   `scheduleDate` field (epoch ms = newest source CSV mtime) as a
   freshness/version marker, matching the PWA's convention.
-- **Bundled fallback**: `assets/schedule.json` — regenerate with
-  `python3 tools/convert_schedule.py` and commit when source data changes.
+- **No bundled fallback**: the app does not ship `schedule.json` in the
+  bundle. On first launch with no cache and a failed/slow fetch, the app
+  shows a loading state (see "Startup / loading flow" below) until the
+  network fetch succeeds.
 - **Published copy**: `../next-caltrain-pwa/webapp/schedule.json` — regenerate
   with `python3 tools/convert_schedule.py ../next-caltrain-pwa/data
   ../next-caltrain-pwa/webapp/schedule.json`, commit, then `npm run deploy`
@@ -61,11 +63,24 @@ iteration.
 - At launch, `Schedule.refreshFromNetwork()` fetches the published copy and
   caches it to `Documents/schedule.json` for next launch.
   `Schedule.load()` prefers the cache, validates with `Schedule.isValid`
-  (stop lists non-empty, schedule table arrays match stop-list lengths), and
-  falls back to the bundled copy if the cache is missing/invalid.
+  (stop lists non-empty, schedule table arrays match stop-list lengths).
 - `CaltrainSchedule.swift` currently has temporary `[Schedule]` debug print
   statements from testing the fetch/cache path — harmless, can be removed
   whenever convenient.
+
+## Startup / loading flow
+
+- On launch, show a modified `AboutView` as a loading screen: the "Schedule
+  data: <date>" section is replaced with "Loading schedule data", and the
+  back button is hidden.
+- While this is shown, the app loads schedule data — prefer the cache
+  (`Documents/schedule.json`) if valid, then attempt
+  `Schedule.refreshFromNetwork()` to update it.
+- Once schedule data is available (from cache or network), automatically
+  transition to `HomeView`.
+- If there is no valid cache and the network fetch fails/times out, this is
+  currently an open question for how to handle (e.g. retry vs. error state)
+  — don't assume a bundled fallback exists.
 
 ## Debugging approach
 
@@ -93,7 +108,7 @@ iteration.
 
 - When Claude needs the contents of a file it doesn't have, ask for it via:
   ```
-  cat <filename> | pbcopy
+  cat Sources/<filename> | pbcopy
   ```
   (one file per command, or one command listing multiple filenames if the
   user is sending several files at once).
