@@ -135,19 +135,8 @@ class TripViewModel: ObservableObject {
 
         trips = todayTrips + tomorrowTrips
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
-        print("[TripViewModel] refresh: minutes=\(goodTimes.minutes) " +
-              "scheduleType=\(scheduleType.label) tomorrowScheduleType=\(tomorrowScheduleType.label) " +
-              "todayTrips=\(todayTrips.count) tomorrowTrips=\(tomorrowTrips.count) " +
-              "nextIndex=\(nextIndex) totalTrips=\(trips.count)")
-        if !todayTrips.isEmpty {
-            print("[TripViewModel] today first.depart=\(todayTrips.first!.depart) last.depart=\(todayTrips.last!.depart)")
-        }
-        if !tomorrowTrips.isEmpty {
-            print("[TripViewModel] tomorrow(shifted) first.depart=\(tomorrowTrips.first!.depart) last.depart=\(tomorrowTrips.last!.depart)")
-        }
         userSelected = false
-        offset = nextIndex
-        if offset >= trips.count { offset = max(0, trips.count - 1) }
+        offset = clampedOffset(preferring: nextIndex)
     }
 
     func setOffset(_ newOffset: Int) {
@@ -155,18 +144,30 @@ class TripViewModel: ObservableObject {
         offset = newOffset
     }
 
+    /// Shared fallback: if there's no service tomorrow and today's trips are
+    /// all in the past, keep the first trip selected instead of clamping to
+    /// the last (already-departed) one.
+    private func clampedOffset(preferring desired: Int) -> Int {
+        if desired < trips.count { return desired }
+        let hasTomorrow = trips.contains { $0.isFuture }
+        if !hasTomorrow && !trips.isEmpty {
+            return 0
+        }
+        return max(0, trips.count - 1)
+    }
+
     func resetToNext() {
         userSelected = false
-        offset = nextIndex
-        if offset >= trips.count { offset = max(0, trips.count - 1) }
+        offset = clampedOffset(preferring: nextIndex)
     }
 
     func updateNextIndex() {
         nextIndex = service.nextIndex(trips: trips, minutes: goodTimes.minutes)
         if !userSelected {
-            offset = nextIndex
+            offset = clampedOffset(preferring: nextIndex)
+        } else if offset >= trips.count {
+            offset = clampedOffset(preferring: offset)
         }
-        if offset >= trips.count { offset = max(0, trips.count - 1) }
     }
 
     func offsetUp() {
