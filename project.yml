@@ -4,6 +4,13 @@ options:
   deploymentTarget:
     iOS: "17.0"
     watchOS: "10.0"
+packages:
+  Quick:
+    url: https://github.com/Quick/Quick.git
+    from: 7.0.0
+  Nimble:
+    url: https://github.com/Quick/Nimble.git
+    from: 13.0.0
 targets:
   NextCaltrain:
     type: application
@@ -22,6 +29,17 @@ targets:
       properties:
         CFBundleDisplayName: Next Caltrain
         UILaunchStoryboardName: ""
+  NextCaltrainTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests
+    dependencies:
+      - target: NextCaltrain
+      - package: Quick
+      - package: Nimble
+    settings:
+      GENERATE_INFOPLIST_FILE: true
   NextCaltrainWatch:
     type: application
     platform: watchOS
@@ -31,3 +49,12 @@ targets:
       path: NextCaltrainWatch/Info.plist
       properties:
         CFBundleDisplayName: Next Caltrain
+schemes:
+  NextCaltrain:
+    build:
+      targets:
+        NextCaltrain: all
+        NextCaltrainTests: [test]
+    test:
+      targets:
+        - NextCaltrainTests
