@@ -9,3 +9,5 @@ if [ "$1" = "-l" ] || [ "$1" = "--log" ]; then
     --style compact \
     --predicate 'eventMessage contains "[GoodTimes]" or eventMessage contains "[TripViewModel]" or eventMessage contains "[Schedule]"'
 fi
+
+# open -a Simulator
