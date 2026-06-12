@@ -6,8 +6,8 @@ A port of the apps for
 [J2ME](https://github.com/woodie/Caltrain-Schedule-MIDlet).
 
 <img width="25%" 
-  src="https://github.com/woodie/next-caltrain-ios/blob/main/docs/HomeView.png">
+  src="https://github.com/woodie/next-caltrain-ios/blob/main/pics/HomeView.png">
 <img width="25%"
-  src="https://github.com/woodie/next-caltrain-ios/blob/main/docs/TripListView.png">
+  src="https://github.com/woodie/next-caltrain-ios/blob/main/pics/TripListView.png">
 <img width="25%"
-  src="https://github.com/woodie/next-caltrain-ios/blob/main/docs/TripDetailView.png">
+  src="https://github.com/woodie/next-caltrain-ios/blob/main/pics/TripDetailView.png">
