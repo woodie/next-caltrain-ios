@@ -71,16 +71,22 @@ iteration.
 ## Startup / loading flow
 
 - On launch, show a modified `AboutView` as a loading screen: the "Schedule
-  data: <date>" section is replaced with "Loading schedule data", and the
-  back button is hidden.
-- While this is shown, the app loads schedule data — prefer the cache
-  (`Documents/schedule.json`) if valid, then attempt
-  `Schedule.refreshFromNetwork()` to update it.
-- Once schedule data is available (from cache or network), automatically
-  transition to `HomeView`.
-- If there is no valid cache and the network fetch fails/times out, this is
-  currently an open question for how to handle (e.g. retry vs. error state)
-  — don't assume a bundled fallback exists.
+  data: <date>" section is replaced with "Loading schedule data" (or
+  "Unable to load schedule" on permanent failure), and the back button is
+  hidden.
+- `ContentView` owns the loading state machine (see `loadSchedule()`):
+  - **No valid cache**: block on `Schedule.fetchFromNetwork()`. On success,
+    transition to `HomeView`. On failure, show "Unable to load schedule"
+    permanently — no retry loop, no transition.
+  - **Valid cache exists**: race `fetchFromNetwork()` against a 10s timeout
+    (`firstOf` helper). Whichever resolves first wins; on timeout or
+    failure, fall back to the cached schedule and transition to `HomeView`.
+- `TripViewModel` no longer loads schedule data itself — it takes a
+  `Schedule` via `init(schedule:)`, injected by `ContentView` once loading
+  completes.
+- See `docs/SCHEDULE_ENDPOINT.md` and `tools/hang_server.py` for how to test
+  these states (instant-failure via unreachable port, hanging-server for the
+  10s timeout path).
 
 ## Debugging approach
 
