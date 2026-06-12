@@ -153,11 +153,8 @@ struct TripDetailView: View {
                 } else {
                     role = .future
                 }
-
-                let transferLabel: String? = isTransfer ?
-                    "→ #\(trip.legs[1].trainId) \(CaltrainService.trainType(trip.legs[1].trainId))" : nil
-
-                result.append(TripStop(time: t, station: sta, role: role, transferLabel: transferLabel))
+                // TODO: Possible transfer label: SJC → #405 Limited
+                result.append(TripStop(time: t, station: sta, role: role, transferLabel: nil))
             }
         }
         return result
