@@ -7,3 +7,5 @@ xcrun simctl launch booted com.netpress.NextCaltrain
 #  --level debug \
 #  --style compact \
 #  --predicate 'eventMessage contains "[GoodTimes]" or eventMessage contains "[TripViewModel]" or eventMessage contains "[Schedule]"'
+
+# open -a Simulator

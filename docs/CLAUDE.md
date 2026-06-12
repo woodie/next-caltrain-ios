@@ -13,14 +13,14 @@ workflow per change is:
 2. Run the copy-paste command Claude provides, which typically does:
    ```
    mv ~/Downloads/<Files> Sources/   # or tools/, assets/, etc.
-   ./build.sh && ./emulate.sh
+   ./build.sh && ./simulate.sh
    ```
 
 `./build.sh` wraps `xcodegen` (regenerates the Xcode project — needed when
 files are added/removed) + `xcodebuild ... | grep "error:"` (build, only
 errors printed) + `xcrun simctl uninstall` (clean reinstall).
 
-`./emulate.sh` installs and launches the app in the simulator.
+`./simulate.sh` installs and launches the app in the simulator.
 
 After running, the user shares a simulator screenshot for visual feedback and
 iteration.
@@ -86,7 +86,7 @@ iteration.
 - After every file edit, always provide the copy-paste command:
   ```
   mv ~/Downloads/<Files> Sources/   # or tools/, assets/, etc.
-  ./build.sh && ./emulate.sh
+  ./build.sh && ./simulate.sh
   ```
   Don't omit this even if it was given recently — always include it with each
   set of changed files.
