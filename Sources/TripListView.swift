@@ -115,7 +115,7 @@ struct TripListView: View {
             VStack(spacing: 0) {
                 header
                 tripList
-                Spacer()
+                Spacer(minLength: 0)
             }
 
             NavigationLink(
@@ -227,51 +227,57 @@ struct TripListView: View {
         }
     }
 
-    // Trip list: fixed number of static rows below the header
+    // Trip list: number of rows adapts to available height below the header
     private var tripList: some View {
-        VStack(spacing: 0) {
-            ForEach(0..<min(17, max(viewModel.trips.count, 1)), id: \.self) { slot in
-                if let trip = tripAt(slot) {
-                    TripRow(
-                        trip: trip,
-                        isNext: isNext(slot),
-                        isInactive: isInactive(slot),
-                        isFuture: isFuture(slot),
-                        isDeparting: isDepartingSlot(slot),
-                        swapped: viewModel.swapped,
-                        timeColumnWidth: timeColumnWidth
-                    )
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if !suppressTap {
-                            navigateToTrip = trip
+        GeometryReader { proxy in
+            let maxRows = max(1, Int(proxy.size.height / rowHeight))
+            let rowCount = min(maxRows, max(viewModel.trips.count, 1))
+
+            VStack(spacing: 0) {
+                ForEach(0..<rowCount, id: \.self) { slot in
+                    if let trip = tripAt(slot) {
+                        TripRow(
+                            trip: trip,
+                            isNext: isNext(slot),
+                            isInactive: isInactive(slot),
+                            isFuture: isFuture(slot),
+                            isDeparting: isDepartingSlot(slot),
+                            swapped: viewModel.swapped,
+                            timeColumnWidth: timeColumnWidth
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if !suppressTap {
+                                navigateToTrip = trip
+                            }
                         }
                     }
                 }
+                Spacer(minLength: 0)
             }
-        }
-        .onPreferenceChange(TimeWidthKey.self) { width in
-            timeColumnWidth = width
-        }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 10)
-                .onChanged { value in
-                    suppressTap = true
-                    let newShift = -Int((value.translation.height / rowHeight).rounded())
-                    let proposed = viewModel.offset + newShift
-                    if proposed >= 0 && proposed < viewModel.trips.count {
-                        dragShift = newShift
+            .onPreferenceChange(TimeWidthKey.self) { width in
+                timeColumnWidth = width
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 10)
+                    .onChanged { value in
+                        suppressTap = true
+                        let newShift = -Int((value.translation.height / rowHeight).rounded())
+                        let proposed = viewModel.offset + newShift
+                        if proposed >= 0 && proposed < viewModel.trips.count {
+                            dragShift = newShift
+                        }
                     }
-                }
-                .onEnded { _ in
-                    viewModel.setOffset(effectiveOffset)
-                    dragShift = 0
-                    // Allow taps again shortly after drag ends
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        suppressTap = false
+                    .onEnded { _ in
+                        viewModel.setOffset(effectiveOffset)
+                        dragShift = 0
+                        // Allow taps again shortly after drag ends
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            suppressTap = false
+                        }
                     }
-                }
-        )
-        .padding(.top, 8)
+            )
+            .padding(.top, 8)
+        }
     }
 }

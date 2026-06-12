@@ -186,6 +186,7 @@ struct HomeView: View {
                     .frame(width: 190)
                     .offset(y: 8)
                 }
+                .padding(.top, 30)
                 .contentShape(Circle())
                 .onTapGesture {
                     showTripList = true

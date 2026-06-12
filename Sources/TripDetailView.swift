@@ -111,6 +111,7 @@ struct TripDetailView: View {
     let scheduleType: ScheduleType
     let goodTimes: GoodTimes
 
+    @Environment(\.dismiss) private var dismiss
     @State private var nameColumnWidth: CGFloat = 0
 
     private var stops: [TripStop] {
@@ -178,11 +179,34 @@ struct TripDetailView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             VStack(spacing: 0) {
-                Text(title)
-                    .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
+                // toolbar — back button (left), title (centered), spacer (right)
+                // Structured identically to HomeView/TripListView's first row
+                // (literal first child of the outer VStack(spacing: 0), plain
+                // .padding(.top, 8)) so the safe-area inset resolves
+                // immediately instead of causing a post-appear layout shift.
+                HStack {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
+
+                    Spacer()
+
+                    Text(title)
+                        .foregroundColor(.white)
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+
+                    Spacer()
+
+                    Color.clear
+                        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -202,8 +226,9 @@ struct TripDetailView: View {
                         nameColumnWidth = width
                     }
                 }
+                .padding(.top, 8)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
     }
 }
