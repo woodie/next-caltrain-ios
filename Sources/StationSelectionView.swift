@@ -92,10 +92,11 @@ struct StationSelectionView: View {
     func sectionHeader(_ title: String) -> some View {
         Text(title)
             .foregroundColor(.green)
-            .font(.headline)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
             .background(Color.black)
     }
 
@@ -109,7 +110,7 @@ struct StationSelectionView: View {
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: morningStation, columnWidth: morningRowWidth)
                             .listRowBackground(Color.black)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
                             .id(station)
                             .onTapGesture {
                                 setMorningStation(station)
@@ -133,14 +134,14 @@ struct StationSelectionView: View {
                 }
                 .frame(maxHeight: .infinity)
 
-                Divider().background(Color.gray)
+                Divider().background(Color.gray).padding(.vertical, 4)
 
                 // Bottom half — Evening
                 ScrollViewReader { proxy in
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: eveningStation, columnWidth: eveningRowWidth)
                             .listRowBackground(Color.black)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
                             .id(station)
                             .onTapGesture {
                                 setEveningStation(station)
