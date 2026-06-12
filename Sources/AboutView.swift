@@ -16,7 +16,7 @@ struct AboutView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // toolbar — back (left), matching TripDetailView/TripListView style
@@ -26,7 +26,7 @@ struct AboutView: View {
                             dismiss()
                         } label: {
                             Image(systemName: "chevron.left")
-                                .foregroundColor(.white)
+                                .foregroundColor(.appText)
                                 .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                                 .background(Circle().fill(Color.iconCircleBackground))
                         }
@@ -46,21 +46,21 @@ struct AboutView: View {
 
                     Text("Next Caltrain")
                         .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
 
                     Text("for iOS")
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
 
                     Text("© 2026 John Woodell")
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .padding(.top, 8)
 
                     if isLoading {
                         Text(loadFailed ? "Unable to load schedule" : "Loading schedule data")
                             .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                            .foregroundColor(.white)
+                            .foregroundColor(.appText)
                             .padding(.top, 8)
                     } else {
                         VStack(spacing: 2) {
@@ -68,7 +68,7 @@ struct AboutView: View {
                             Text(scheduleDateText)
                         }
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .padding(.top, 8)
                     }
                 }

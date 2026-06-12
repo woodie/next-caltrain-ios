@@ -69,7 +69,7 @@ struct StationSelectionView: View {
 
     func stationRow(_ station: String, selected: String, columnWidth: CGFloat) -> some View {
         Text(station)
-            .foregroundColor(.white)
+            .foregroundColor(.appText)
             .font(.system(size: AppStyle.fontOrigin, weight: .regular))
             .fixedSize(horizontal: true, vertical: false)
             .background(
@@ -80,7 +80,7 @@ struct StationSelectionView: View {
             .frame(width: columnWidth > 0 ? columnWidth : nil, alignment: .leading)
             .overlay(alignment: .leading) {
                 Image(systemName: "checkmark")
-                    .foregroundColor(.green)
+                    .foregroundColor(.calArrive)
                     .opacity(station == selected ? 1 : 0)
                     .offset(x: -32)
             }
@@ -91,25 +91,25 @@ struct StationSelectionView: View {
 
     func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .foregroundColor(.green)
+            .foregroundColor(.calArrive)
             .font(.system(size: AppStyle.fontOrigin, weight: .regular))
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 4)
-            .background(Color.black)
+            .background(Color.appBackground)
     }
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
             VStack(spacing: 0) {
 
                 // Top half — Morning
                 ScrollViewReader { proxy in
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: morningStation, columnWidth: morningRowWidth)
-                            .listRowBackground(Color.black)
+                            .listRowBackground(Color.appBackground)
                             .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
                             .id(station)
                             .onTapGesture {
@@ -118,7 +118,7 @@ struct StationSelectionView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .background(Color.black)
+                    .background(Color.appBackground)
                     .onPreferenceChange(RowWidthKey.self) { width in
                         morningRowWidth = width
                     }
@@ -140,7 +140,7 @@ struct StationSelectionView: View {
                 ScrollViewReader { proxy in
                     List(stations, id: \.self) { station in
                         stationRow(station, selected: eveningStation, columnWidth: eveningRowWidth)
-                            .listRowBackground(Color.black)
+                            .listRowBackground(Color.appBackground)
                             .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
                             .id(station)
                             .onTapGesture {
@@ -149,7 +149,7 @@ struct StationSelectionView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .background(Color.black)
+                    .background(Color.appBackground)
                     .onPreferenceChange(RowWidthKey.self) { width in
                         eveningRowWidth = width
                     }
@@ -169,7 +169,7 @@ struct StationSelectionView: View {
         .navigationTitle("Stations")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(Color.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -177,7 +177,7 @@ struct StationSelectionView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -186,7 +186,7 @@ struct StationSelectionView: View {
                         restoreDefaults()
                     } label: {
                         Image(systemName: "arrow.counterclockwise")
-                            .foregroundColor(.white)
+                            .foregroundColor(.appText)
                     }
                 }
             }
@@ -197,7 +197,7 @@ struct StationSelectionView: View {
                         showSaveConfirm = true
                     } label: {
                         Image(systemName: "checkmark")
-                            .foregroundColor(.green)
+                            .foregroundColor(.calArrive)
                     }
                 }
             }

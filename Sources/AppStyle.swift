@@ -1,12 +1,46 @@
 import SwiftUI
 
+// Helper to define a color that adapts to light/dark mode
+private extension Color {
+    init(light: Color, dark: Color) {
+        self = Color(UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
+        })
+    }
+}
+
 // MARK: - Colors (named after legacy CSS variables)
 extension Color {
-    static let calPast    = Color(red: 0.0, green: 0.67, blue: 1.0)   // --msg-departed-color:  #0AF
-    static let calArrive  = Color(red: 0.0, green: 1.0,  blue: 0.0)   // --msg-arriving-color:  #0F0
-    static let calDepart  = Color(red: 1.0, green: 1.0,  blue: 0.0)   // --msg-departing-color: #FF0
-    static let calSwapped = Color(white: 0.4)                          // --msg-selected-color:  #666
-    static let iconCircleBackground = Color(white: 0.15)               // toolbar icon button background
+    static let calPast = Color(                           // BLUE
+        light: Color(red: 0.0,  green: 0.0,  blue: 1.0),  // #00F
+        dark:  Color(red: 0.0,  green: 0.67, blue: 1.0)   // #0AF
+    )
+    static let calArrive = Color(                         // GREEN
+        light: Color(red: 0.0,  green: 0.62, blue: 0.4),  // #009e0b
+        dark:  Color(red: 0.0,  green: 1.0,  blue: 0.0)   // #0F0
+    )
+    static let calDepart = Color(                         // YELLOW
+        light: Color(red: 0.80, green: 0.62, blue: 0.07), // mustard
+        dark:  Color(red: 1.0,  green: 1.0,  blue: 0.0)   // #FF0
+    )
+    static let calSwapped = Color(
+        light: Color(white: 0.55),
+        dark:  Color(white: 0.4)
+    )
+    static let iconCircleBackground = Color(
+        light: Color(white: 0.88),
+        dark:  Color(white: 0.15)
+    )
+
+    // Background and primary text — straight inversions
+    static let appBackground = Color(
+        light: Color.white,
+        dark:  Color.black
+    )
+    static let appText = Color(
+        light: Color.black,
+        dark:  Color.white
+    )
 }
 
 enum AppStyle {

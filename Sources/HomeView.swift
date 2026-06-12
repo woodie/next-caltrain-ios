@@ -59,11 +59,11 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
 
             VStack {
                 LinearGradient(
-                    colors: [Color(white: 0.5), Color.black],
+                    colors: [Color(white: 0.5), Color.appBackground],
                     startPoint: .top,
                     endPoint: .center
                 )
@@ -76,7 +76,7 @@ struct HomeView: View {
                 // toolbar — app name (left), reset (conditional) + swap (right)
                 HStack {
                     Text("Next Caltrain")
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
                         .frame(height: AppStyle.iconButtonSize)
                         .contentShape(Rectangle())
@@ -89,7 +89,7 @@ struct HomeView: View {
                             viewModel.resetToNext()
                         } label: {
                             Image(systemName: "arrow.counterclockwise")
-                                .foregroundColor(.white)
+                                .foregroundColor(.appText)
                                 .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                                 .background(Circle().fill(Color.iconCircleBackground))
                         }
@@ -99,7 +99,7 @@ struct HomeView: View {
                         viewModel.swapStations()
                     } label: {
                         Image(systemName: "arrow.left.arrow.right")
-                            .foregroundColor(.white)
+                            .foregroundColor(.appText)
                             .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                             .background(Circle().fill(Color.iconCircleBackground))
                     }
@@ -118,10 +118,10 @@ struct HomeView: View {
                     VStack(spacing: 6) {
                         VStack(spacing: 0) {
                             Text(line1)
-                                .foregroundColor(.white)
+                                .foregroundColor(.appText)
                                 .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                             Text(line2)
-                                .foregroundColor(.white)
+                                .foregroundColor(.appText)
                                 .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         }
                         .contentShape(Rectangle())
@@ -162,7 +162,7 @@ struct HomeView: View {
 
                             // train-hero + time-hero + meridiem-hero
                             if let trip = selectedTrip {
-                                let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .white
+                                let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .appText
                                 let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
                                 VStack(spacing: 2) {
                                     HStack(alignment: .lastTextBaseline, spacing: 3) {
@@ -177,7 +177,7 @@ struct HomeView: View {
                                             .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                     }
                                     Text(CaltrainService.trainType(trip.legs.first!.trainId))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.appText)
                                         .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                 }
                             }

@@ -19,7 +19,7 @@ struct TripRow: View {
     var textColor: Color {
         if isInactive { return .calPast }
         if swapped     { return .calPast }
-        return .white
+        return .appText
     }
 
     var borderColor: Color {

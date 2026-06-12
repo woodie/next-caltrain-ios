@@ -27,10 +27,10 @@ struct StopRow: View {
         }
     }
 
-    // Dot color — origin/destination/transfer are white (.target in legacy)
+    // Dot color — origin/destination/transfer are app-text colored (.target in legacy)
     var dotColor: Color {
         switch role {
-        case .origin, .destination, .transfer: return .white
+        case .origin, .destination, .transfer: return .appText
         default: return trackColor
         }
     }
@@ -39,7 +39,7 @@ struct StopRow: View {
     var textColor: Color {
         switch role {
         case .past: return .calPast
-        default:    return .white
+        default:    return .appText
         }
     }
 
@@ -177,7 +177,7 @@ struct TripDetailView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
             VStack(spacing: 0) {
                 // toolbar — back button (left), title (centered), spacer (right)
                 // Structured identically to HomeView/TripListView's first row
@@ -189,7 +189,7 @@ struct TripDetailView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
+                            .foregroundColor(.appText)
                             .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                             .background(Circle().fill(Color.iconCircleBackground))
                     }
@@ -197,7 +197,7 @@ struct TripDetailView: View {
                     Spacer()
 
                     Text(title)
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
 
                     Spacer()

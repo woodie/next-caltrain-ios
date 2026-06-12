@@ -111,7 +111,19 @@ struct TripListView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
+
+            VStack {
+                LinearGradient(
+                    colors: [Color(white: 0.5), Color.appBackground],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .frame(height: 200)
+                Spacer()
+            }
+            .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 header
                 tripList
@@ -153,7 +165,7 @@ struct TripListView: View {
             // toolbar — TripType (left), reset (optional, almost-right), swap (right)
             HStack {
                 Text(serviceTypeLabel)
-                    .foregroundColor(.white)
+                    .foregroundColor(.appText)
                     .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
 
                 Spacer()
@@ -163,7 +175,7 @@ struct TripListView: View {
                         viewModel.resetToNext()
                     } label: {
                         Image(systemName: "arrow.counterclockwise")
-                            .foregroundColor(.white)
+                            .foregroundColor(.appText)
                             .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                             .background(Circle().fill(Color.iconCircleBackground))
                     }
@@ -173,7 +185,7 @@ struct TripListView: View {
                     viewModel.swapStations()
                 } label: {
                     Image(systemName: "arrow.left.arrow.right")
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                         .background(Circle().fill(Color.iconCircleBackground))
                 }
@@ -187,7 +199,7 @@ struct TripListView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                         .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                         .background(Circle().fill(Color.iconCircleBackground))
                 }
@@ -197,10 +209,10 @@ struct TripListView: View {
                 VStack(spacing: 2) {
                     Text(line1)
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                     Text(line2)
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appText)
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { showStationSelection = true }
