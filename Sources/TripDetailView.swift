@@ -52,24 +52,29 @@ struct StopRow: View {
                 .frame(width: 75, alignment: .trailing)
 
             // station-spacer: vertical line + dot
-            ZStack(alignment: .top) {
-                if !isLast {
-                    Rectangle()
-                        .fill(trackColor)
-                        .frame(width: 2)
-                        .offset(y: 10)
+            GeometryReader { geo in
+                let dotY = AppStyle.fontTrain / 2 + 4 // tune this single constant
+                ZStack(alignment: .top) {
+                    if !isLast {
+                        Rectangle()
+                            .fill(trackColor)
+                            .frame(width: 2, height: geo.size.height - dotY + 12)
+                            .offset(y: dotY)
+                    }
+                    Circle()
+                        .fill(dotColor)
+                        .frame(width: 10, height: 10)
+                        .offset(y: dotY - 5)
                 }
-                Circle()
-                    .fill(dotColor)
-                    .frame(width: 10, height: 10)
             }
             .frame(width: 10)
+            .frame(maxHeight: .infinity)
 
             // station-name
             VStack(alignment: .leading, spacing: 2) {
                 Text(station)
                     .foregroundColor(textColor)
-                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                    .font(.system(size: AppStyle.fontTrain, weight: .regular))
                     .fixedSize(horizontal: true, vertical: false)
                 if let label = transferLabel {
                     Text(label)
