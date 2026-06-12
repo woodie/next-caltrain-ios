@@ -24,7 +24,7 @@ struct TripRow: View {
 
     var borderColor: Color {
         if isNext && isDeparting { return .calDepart }
-        if isNext && isFuture    { return .calArrive }
+        if isNext && isFuture    { return .calSwapped }
         if isNext && isInactive  { return .calSwapped }
         if isNext && swapped     { return .calSwapped }
         if isNext                { return .calArrive }

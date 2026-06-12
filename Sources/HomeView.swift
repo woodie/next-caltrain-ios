@@ -39,7 +39,7 @@ struct HomeView: View {
 
     var ringColor: Color {
         if noTrainsAtAll { return .calSwapped }
-        if isSelectedFuture { return .calArrive }
+        if isSelectedFuture { return .calSwapped }
         if viewModel.swapped || isSelectedPast { return .calSwapped }
         if isSelectedDeparting { return .calDepart }
         return .calArrive
