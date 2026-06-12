@@ -168,7 +168,7 @@ struct TripDetailView: View {
 
     var title: String {
         let leg = currentLeg
-        let dir = leg.trainId % 2 == 0 ? "SB" : "NB"
+        let dir = leg.trainId % 2 == 0 ? "Southbound" : "Northbound"
         return "\(dir) #\(leg.trainId) \(CaltrainService.trainType(leg.trainId))"
     }
 
@@ -178,7 +178,7 @@ struct TripDetailView: View {
             VStack(spacing: 0) {
                 Text(title)
                     .foregroundColor(.white)
-                    .font(.system(size: AppStyle.fontOrigin, weight: .bold))
+                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                     .padding(.top, 16)
                     .padding(.bottom, 8)
 
