@@ -23,7 +23,6 @@
 		E48BFFC549DC1A5660CF36B4 /* NextCaltrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */; };
 		E9E2F32C0016B12F162B8CAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 171CFA1BF43465247CF33974 /* Assets.xcassets */; };
 		F5D37F9AA8080ED15233BDA2 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB9136C0B8781CDE2452A3B /* AboutView.swift */; };
-		FD2024206DAC099CF1A0F45F /* schedule.json in Resources */ = {isa = PBXBuildFile; fileRef = FC4B0F0C254DBF5CFE1D5F04 /* schedule.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,7 +42,6 @@
 		CF91C9952A33108B634F950C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F004781BE584AA5BC7EF6C67 /* TripListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripListView.swift; sourceTree = "<group>"; };
 		F6F7DD95FCEAFD0D2923CB2E /* StationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationPickerView.swift; sourceTree = "<group>"; };
-		FC4B0F0C254DBF5CFE1D5F04 /* schedule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = schedule.json; sourceTree = "<group>"; };
 		FC7BECF651E4D73D421BF528 /* GoodTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodTimes.swift; sourceTree = "<group>"; };
 		FEF306EBBF818D5A5388BBCF /* CaltrainSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainSchedule.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -69,7 +67,6 @@
 				FC7BECF651E4D73D421BF528 /* GoodTimes.swift */,
 				CF91C9952A33108B634F950C /* HomeView.swift */,
 				9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */,
-				FC4B0F0C254DBF5CFE1D5F04 /* schedule.json */,
 				F6F7DD95FCEAFD0D2923CB2E /* StationPickerView.swift */,
 				4E911FDC405B95A5F919E6FB /* StationSelectionView.swift */,
 				113A6C3F729D755E18221167 /* TripDetailView.swift */,
@@ -181,7 +178,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9E2F32C0016B12F162B8CAC /* Assets.xcassets in Resources */,
-				FD2024206DAC099CF1A0F45F /* schedule.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

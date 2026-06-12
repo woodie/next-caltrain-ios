@@ -3,6 +3,8 @@ import SwiftUI
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
     let scheduleDate: Int?
+    var isLoading: Bool = false
+    var loadFailed: Bool = false
 
     var scheduleDateText: String {
         guard let ms = scheduleDate else { return "Unknown" }
@@ -19,13 +21,15 @@ struct AboutView: View {
             VStack(spacing: 0) {
                 // toolbar — back (left), matching TripDetailView/TripListView style
                 HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                            .background(Circle().fill(Color.iconCircleBackground))
+                    if !isLoading {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(.white)
+                                .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                                .background(Circle().fill(Color.iconCircleBackground))
+                        }
                     }
                     Spacer()
                 }
@@ -53,13 +57,20 @@ struct AboutView: View {
                         .foregroundColor(.white)
                         .padding(.top, 8)
 
-                    VStack(spacing: 2) {
-                        Text("Schedule data:")
-                        Text(scheduleDateText)
+                    if isLoading {
+                        Text(loadFailed ? "Unable to load schedule" : "Loading schedule data")
+                            .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                            .foregroundColor(.white)
+                            .padding(.top, 8)
+                    } else {
+                        VStack(spacing: 2) {
+                            Text("Schedule data:")
+                            Text(scheduleDateText)
+                        }
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                        .foregroundColor(.white)
+                        .padding(.top, 8)
                     }
-                    .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                    .foregroundColor(.white)
-                    .padding(.top, 8)
                 }
 
                 Spacer()

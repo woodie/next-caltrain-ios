@@ -79,11 +79,11 @@ class TripViewModel: ObservableObject {
         return direction == "South" ? schedule.southStops : schedule.southStops.reversed()
     }
 
-    init() {
-        let sched = Schedule.load()
+    /// `sched` is loaded by ContentView during the startup loading screen
+    /// (from cache or network) and injected here.
+    init(schedule sched: Schedule) {
         self.schedule = sched
         self.service = CaltrainService(schedule: sched)
-        Schedule.refreshFromNetwork()
 
         let savedAM = UserDefaults.standard.object(forKey: "stopAM") as? Int
         let savedPM = UserDefaults.standard.object(forKey: "stopPM") as? Int

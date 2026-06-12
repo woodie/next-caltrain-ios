@@ -33,23 +33,14 @@ struct Schedule: Codable {
         return dir.appendingPathComponent("schedule.json")
     }
 
-    /// Synchronous load for app launch: prefer a previously-cached (fetched) schedule,
-    /// falling back to the bundled copy if no cache exists or it's invalid.
-    static func load() -> Schedule {
-        if let cached = try? Data(contentsOf: cachedFileURL),
-           let schedule = try? JSONDecoder().decode(Schedule.self, from: cached),
-           schedule.isValid {
-            print("[Schedule] loaded from cache, scheduleDate=\(schedule.scheduleDate ?? -1)")
-            return schedule
+    /// Loads a valid cached schedule from disk, if one exists.
+    static func loadCached() -> Schedule? {
+        guard let cached = try? Data(contentsOf: cachedFileURL),
+              let schedule = try? JSONDecoder().decode(Schedule.self, from: cached),
+              schedule.isValid else {
+            return nil
         }
-        print("[Schedule] loaded from bundle")
-        return loadBundled()
-    }
-
-    private static func loadBundled() -> Schedule {
-        let url = Bundle.main.url(forResource: "schedule", withExtension: "json")!
-        let data = try! Data(contentsOf: url)
-        return try! JSONDecoder().decode(Schedule.self, from: data)
+        return schedule
     }
 
     /// Basic structural validation: stop lists are non-empty, and every schedule
@@ -73,39 +64,27 @@ struct Schedule: Codable {
         return true
     }
 
-    /// Fetches the latest published schedule from the network and, if valid,
-    /// writes it to the local cache for use on the next launch. Safe to call
-    /// fire-and-forget; failures are silently ignored (current session keeps
-    /// using whatever was loaded via `load()`).
-    static func refreshFromNetwork() {
-        URLSession.shared.dataTask(with: remoteURL) { data, response, error in
-            if let error = error {
-                print("[Schedule] fetch error: \(error)")
-                return
-            }
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("[Schedule] no HTTP response")
-                return
-            }
-            print("[Schedule] fetch status: \(httpResponse.statusCode)")
-            guard httpResponse.statusCode == 200, let data = data else { return }
+    /// Fetches the latest published schedule from the network. If valid, writes
+    /// it to the local cache for use on future launches and returns it.
+    /// Throws on network/decode/validation failure.
+    static func fetchFromNetwork() async throws -> Schedule {
+        let (data, response) = try await URLSession.shared.data(from: remoteURL)
 
-            guard let schedule = try? JSONDecoder().decode(Schedule.self, from: data) else {
-                print("[Schedule] decode failed")
-                return
-            }
-            guard schedule.isValid else {
-                print("[Schedule] fetched schedule failed validation")
-                return
-            }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
 
-            do {
-                try data.write(to: cachedFileURL, options: .atomic)
-                print("[Schedule] cached fetched schedule (\(data.count) bytes) at \(cachedFileURL.path)")
-            } catch {
-                print("[Schedule] cache write failed: \(error)")
-            }
-        }.resume()
+        let schedule = try JSONDecoder().decode(Schedule.self, from: data)
+        guard schedule.isValid else {
+            throw URLError(.cannotParseResponse)
+        }
+
+        try? data.write(to: cachedFileURL, options: .atomic)
+
+        return schedule
     }
 }
 
