@@ -50,7 +50,7 @@ struct TripRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .lastTextBaseline, spacing: 24) {
+        let content = HStack(alignment: .lastTextBaseline, spacing: 24) {
             Text("#\(trip.legs.first!.trainId)")
                 .foregroundColor(textColor)
                 .font(.system(size: AppStyle.fontTrain, weight: .regular))
@@ -58,12 +58,15 @@ struct TripRow: View {
             timeView(trip.depart)
             timeView(trip.arrive)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 2)
+        .padding(.horizontal, 12)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(borderColor, lineWidth: 2)
-                .padding(.horizontal, 6)
         )
+
+        return content
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 2)
     }
 }
