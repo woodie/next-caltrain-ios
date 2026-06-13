@@ -100,73 +100,96 @@ struct StationSelectionView: View {
             .background(Color.appBackground)
     }
 
+    @ViewBuilder
+    private func morningList(columnWidth: Binding<CGFloat>) -> some View {
+        ScrollViewReader { proxy in
+            List(stations, id: \.self) { station in
+                stationRow(station, selected: morningStation, columnWidth: columnWidth.wrappedValue)
+                    .listRowBackground(Color.appBackground)
+                    .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
+                    .id(station)
+                    .onTapGesture {
+                        setMorningStation(station)
+                    }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .onPreferenceChange(RowWidthKey.self) { width in
+                columnWidth.wrappedValue = width
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                sectionHeader("Morning Station")
+            }
+            .onAppear {
+                proxy.scrollTo(morningStation, anchor: .center)
+            }
+            .onChange(of: morningStation) { newStation in
+                withAnimation { proxy.scrollTo(newStation, anchor: .center) }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func eveningList(columnWidth: Binding<CGFloat>) -> some View {
+        ScrollViewReader { proxy in
+            List(stations, id: \.self) { station in
+                stationRow(station, selected: eveningStation, columnWidth: columnWidth.wrappedValue)
+                    .listRowBackground(Color.appBackground)
+                    .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
+                    .id(station)
+                    .onTapGesture {
+                        setEveningStation(station)
+                    }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .onPreferenceChange(RowWidthKey.self) { width in
+                columnWidth.wrappedValue = width
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                sectionHeader("Evening Station")
+            }
+            .onAppear {
+                proxy.scrollTo(eveningStation, anchor: .center)
+            }
+            .onChange(of: eveningStation) { newStation in
+                withAnimation { proxy.scrollTo(newStation, anchor: .center) }
+            }
+        }
+    }
+
     var body: some View {
         ZStack {
             Color.appBackground.ignoresSafeArea()
-            VStack(spacing: 0) {
 
-                // Top half — Morning
-                ScrollViewReader { proxy in
-                    List(stations, id: \.self) { station in
-                        stationRow(station, selected: morningStation, columnWidth: morningRowWidth)
-                            .listRowBackground(Color.appBackground)
-                            .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
-                            .id(station)
-                            .onTapGesture {
-                                setMorningStation(station)
-                            }
+            GeometryReader { geo in
+                if geo.size.width > geo.size.height {
+                    // Wide / landscape — side by side
+                    HStack(spacing: 0) {
+                        morningList(columnWidth: $morningRowWidth)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        Divider().background(Color.gray)
+
+                        eveningList(columnWidth: $eveningRowWidth)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.appBackground)
-                    .onPreferenceChange(RowWidthKey.self) { width in
-                        morningRowWidth = width
-                    }
-                    .safeAreaInset(edge: .top, spacing: 0) {
-                        sectionHeader("Morning Station")
-                    }
-                    .onAppear {
-                        proxy.scrollTo(morningStation, anchor: .center)
-                    }
-                    .onChange(of: morningStation) { newStation in
-                        withAnimation { proxy.scrollTo(newStation, anchor: .center) }
+                } else {
+                    // Portrait — stacked
+                    VStack(spacing: 0) {
+                        morningList(columnWidth: $morningRowWidth)
+                            .frame(maxHeight: .infinity)
+
+                        Divider().background(Color.gray).padding(.vertical, 4)
+
+                        eveningList(columnWidth: $eveningRowWidth)
+                            .frame(maxHeight: .infinity)
                     }
                 }
-                .frame(maxHeight: .infinity)
-
-                Divider().background(Color.gray).padding(.vertical, 4)
-
-                // Bottom half — Evening
-                ScrollViewReader { proxy in
-                    List(stations, id: \.self) { station in
-                        stationRow(station, selected: eveningStation, columnWidth: eveningRowWidth)
-                            .listRowBackground(Color.appBackground)
-                            .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
-                            .id(station)
-                            .onTapGesture {
-                                setEveningStation(station)
-                            }
-                    }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.appBackground)
-                    .onPreferenceChange(RowWidthKey.self) { width in
-                        eveningRowWidth = width
-                    }
-                    .safeAreaInset(edge: .top, spacing: 0) {
-                        sectionHeader("Evening Station")
-                    }
-                    .onAppear {
-                        proxy.scrollTo(eveningStation, anchor: .center)
-                    }
-                    .onChange(of: eveningStation) { newStation in
-                        withAnimation { proxy.scrollTo(newStation, anchor: .center) }
-                    }
-                }
-                .frame(maxHeight: .infinity)
             }
         }
-        .navigationTitle("Stations")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbarBackground(Color.appBackground, for: .navigationBar)

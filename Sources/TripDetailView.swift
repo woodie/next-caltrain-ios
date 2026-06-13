@@ -175,57 +175,40 @@ struct TripDetailView: View {
     var body: some View {
         ZStack {
             Color.appBackground.ignoresSafeArea()
-            VStack(spacing: 0) {
-                // toolbar — back button (left), title (centered), spacer (right)
-                // Structured identically to HomeView/TripListView's first row
-                // (literal first child of the outer VStack(spacing: 0), plain
-                // .padding(.top, 8)) so the safe-area inset resolves
-                // immediately instead of causing a post-appear layout shift.
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.appText)
-                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
-                            .background(Circle().fill(Color.iconCircleBackground))
+            ScrollView {
+                VStack(spacing: 0) {
+                    let allStops = stops
+                    ForEach(Array(allStops.enumerated()), id: \.offset) { index, stop in
+                        StopRow(
+                            time: stop.time,
+                            station: stop.station,
+                            role: stop.role,
+                            isLast: index == allStops.count - 1,
+                            transferLabel: stop.transferLabel,
+                            nameColumnWidth: nameColumnWidth
+                        )
                     }
-
-                    Spacer()
-
-                    Text(title)
+                }
+                .onPreferenceChange(StationNameWidthKey.self) { width in
+                    nameColumnWidth = width
+                }
+            }
+            .padding(.top, 8)
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbarBackground(Color.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
                         .foregroundColor(.appText)
-                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-
-                    Spacer()
-
-                    Color.clear
-                        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                ScrollView {
-                    VStack(spacing: 0) {
-                        let allStops = stops
-                        ForEach(Array(allStops.enumerated()), id: \.offset) { index, stop in
-                            StopRow(
-                                time: stop.time,
-                                station: stop.station,
-                                role: stop.role,
-                                isLast: index == allStops.count - 1,
-                                transferLabel: stop.transferLabel,
-                                nameColumnWidth: nameColumnWidth
-                            )
-                        }
-                    }
-                    .onPreferenceChange(StationNameWidthKey.self) { width in
-                        nameColumnWidth = width
-                    }
-                }
-                .padding(.top, 8)
             }
         }
-        .navigationBarHidden(true)
     }
 }
