@@ -19,7 +19,9 @@ struct StopRow: View {
     var transferLabel: String? = nil
     var nameColumnWidth: CGFloat = 0
 
-    // Line and dot color — past=cyan, future=green, matches legacy CSS
+    private let dotSize: CGFloat = 14
+
+    // Line and dot color — past=calPast (blue), future=green, matches legacy PWA
     var trackColor: Color {
         switch role {
         case .past: return .calPast
@@ -35,13 +37,8 @@ struct StopRow: View {
         }
     }
 
-    // Time and station name color
-    var textColor: Color {
-        switch role {
-        case .past: return .calPast
-        default:    return .appText
-        }
-    }
+    // Time and station name color — always appText now
+    var textColor: Color { .appText }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -63,11 +60,11 @@ struct StopRow: View {
                     }
                     Circle()
                         .fill(dotColor)
-                        .frame(width: 10, height: 10)
-                        .offset(y: dotY - 5)
+                        .frame(width: dotSize, height: dotSize)
+                        .offset(y: dotY - dotSize / 2)
                 }
             }
-            .frame(width: 10)
+            .frame(width: dotSize)
             .frame(maxHeight: .infinity)
 
             // station-name
@@ -78,7 +75,7 @@ struct StopRow: View {
                     .fixedSize(horizontal: true, vertical: false)
                 if let label = transferLabel {
                     Text(label)
-                        .foregroundColor(.calPast)
+                        .foregroundColor(.calSwapped)
                         .font(.system(size: AppStyle.fontOrigin - 2, weight: .regular))
                         .fixedSize(horizontal: true, vertical: false)
                 }

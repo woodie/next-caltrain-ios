@@ -13,7 +13,7 @@ private extension Color {
 extension Color {
     static let calPast = Color(                           // BLUE
         light: Color(red: 0.0,  green: 0.0,  blue: 1.0),  // #00F
-        dark:  Color(red: 0.0,  green: 0.67, blue: 1.0)   // #0AF
+        dark:  Color(red: 0.20, green: 0.55, blue: 1.0)   // #338CFF
     )
     static let calArrive = Color(                         // GREEN
         light: Color(red: 0.0,  green: 0.62, blue: 0.4),  // #009e0b
