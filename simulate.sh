@@ -7,7 +7,7 @@ if [ "$1" = "-l" ] || [ "$1" = "--log" ]; then
    xcrun simctl spawn booted log stream \
     --level debug \
     --style compact \
-    --predicate 'eventMessage contains "[GoodTimes]" or eventMessage contains "[TripViewModel]" or eventMessage contains "[Schedule]"'
+    --predicate 'composedMessage CONTAINS "[GoodTimes]" OR composedMessage CONTAINS "[TripViewModel]" OR composedMessage CONTAINS "[Schedule]"'
 fi
 
 # open -a Simulator
