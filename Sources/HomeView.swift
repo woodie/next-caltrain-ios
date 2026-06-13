@@ -72,8 +72,8 @@ struct HomeView: View {
             }
             .ignoresSafeArea()
 
+            // Toolbar layer — fixed at top, doesn't affect circle layout
             VStack(spacing: 0) {
-                // toolbar — app name (left), reset (conditional) + swap (right)
                 HStack {
                     Text("Next Caltrain")
                         .foregroundColor(.appText)
@@ -108,110 +108,11 @@ struct HomeView: View {
                 .padding(.top, 8)
 
                 Spacer()
-
-                ZStack {
-                    Circle()
-                        .stroke(ringColor, lineWidth: 5)
-                        .frame(width: 230, height: 230)
-                        .animation(.easeInOut(duration: 0.4), value: ringColor)
-
-                    VStack(spacing: 6) {
-                        VStack(spacing: 0) {
-                            Text(line1)
-                                .foregroundColor(.appText)
-                                .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                            Text(line2)
-                                .foregroundColor(.appText)
-                                .font(.system(size: AppStyle.fontOrigin, weight: .regular))
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture { showStationSelection = true }
-
-                        if noTrainsAtAll {
-                            Text("NO TRAINS")
-                                .foregroundColor(.calPast)
-                                .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                                .opacity(blinkOn ? 1 : 0)
-                                .animation(.easeInOut(duration: 0.5), value: blinkOn)
-                        } else {
-                            // blurb-hero
-                            if isSelectedFuture {
-                                Text(viewModel.tomorrowScheduleType.label)
-                                    .foregroundColor(.calPast)
-                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                            } else if isSelectedDeparting {
-                                Text("DEPARTING")
-                                    .foregroundColor(.calDepart)
-                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                                    .opacity(blinkOn ? 1 : 0)
-                                    .animation(.easeInOut(duration: 0.5), value: blinkOn)
-                            } else if viewModel.swapped || isSelectedPast {
-                                Text(viewModel.scheduleType.label)
-                                    .foregroundColor(.calPast)
-                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                            } else if let trip = selectedTrip {
-                                let c = viewModel.goodTimes.countdown(trip.depart)
-                                if !c.isEmpty {
-                                    Text(c)
-                                        .foregroundColor(.calArrive)
-                                        .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                                        .lineLimit(1)
-                                        .fixedSize(horizontal: true, vertical: false)
-                                }
-                            }
-
-                            // train-hero + time-hero + meridiem-hero
-                            if let trip = selectedTrip {
-                                let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .appText
-                                let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
-                                VStack(spacing: 2) {
-                                    HStack(alignment: .lastTextBaseline, spacing: 3) {
-                                        Text("#\(trip.legs.first!.trainId)")
-                                            .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontTrain, weight: .regular))
-                                        Text(timeStr)
-                                            .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontBlurb, weight: .regular))
-                                        Text(merStr)
-                                            .foregroundColor(infoColor)
-                                            .font(.system(size: AppStyle.fontTrain, weight: .regular))
-                                    }
-                                    Text(CaltrainService.trainType(trip.legs.first!.trainId))
-                                        .foregroundColor(.appText)
-                                        .font(.system(size: AppStyle.fontTrain, weight: .regular))
-                                }
-                            }
-                        }
-                    }
-                    .frame(width: 190)
-                    .offset(y: 8)
-                }
-                .padding(.top, 30)
-                .contentShape(Circle())
-                .onTapGesture {
-                    showTripList = true
-                }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 10)
-                        .onChanged { value in
-                            let newShift = -Int((value.translation.height / rowHeight).rounded())
-                            let proposed = viewModel.offset + newShift
-                            if proposed >= 0 && proposed < viewModel.trips.count {
-                                dragShift = newShift
-                            }
-                        }
-                        .onEnded { _ in
-                            viewModel.setOffset(effectiveOffset)
-                            dragShift = 0
-                        }
-                )
-                .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
-                    blinkOn = (isSelectedDeparting || noTrainsAtAll) ? !blinkOn : true
-                }
-
-                Spacer()
             }
-            .padding(.bottom, 70)
+
+            // Floating circle — centered on the full screen, doesn't affect toolbar
+            circleContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
             NavigationLink(destination: TripListView(viewModel: viewModel), isActive: $showTripList) {
                 EmptyView()
@@ -225,5 +126,106 @@ struct HomeView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+    }
+
+    private var circleContent: some View {
+        ZStack {
+            Circle()
+                .stroke(ringColor, lineWidth: 5)
+                .frame(width: 230, height: 230)
+                .animation(.easeInOut(duration: 0.4), value: ringColor)
+
+            VStack(spacing: 6) {
+                VStack(spacing: 0) {
+                    Text(line1)
+                        .foregroundColor(.appText)
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                    Text(line2)
+                        .foregroundColor(.appText)
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { showStationSelection = true }
+
+                if noTrainsAtAll {
+                    Text("NO TRAINS")
+                        .foregroundColor(.calPast)
+                        .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                        .opacity(blinkOn ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.5), value: blinkOn)
+                } else {
+                    // blurb-hero
+                    if isSelectedFuture {
+                        Text(viewModel.tomorrowScheduleType.label)
+                            .foregroundColor(.calPast)
+                            .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                    } else if isSelectedDeparting {
+                        Text("DEPARTING")
+                            .foregroundColor(.calDepart)
+                            .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                            .opacity(blinkOn ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.5), value: blinkOn)
+                    } else if viewModel.swapped || isSelectedPast {
+                        Text(viewModel.scheduleType.label)
+                            .foregroundColor(.calPast)
+                            .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                    } else if let trip = selectedTrip {
+                        let c = viewModel.goodTimes.countdown(trip.depart)
+                        if !c.isEmpty {
+                            Text(c)
+                                .foregroundColor(.calArrive)
+                                .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                    }
+
+                    // train-hero + time-hero + meridiem-hero
+                    if let trip = selectedTrip {
+                        let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .appText
+                        let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
+                        VStack(spacing: 2) {
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text("#\(trip.legs.first!.trainId)")
+                                    .foregroundColor(infoColor)
+                                    .font(.system(size: AppStyle.fontTrain, weight: .regular))
+                                Text(timeStr)
+                                    .foregroundColor(infoColor)
+                                    .font(.system(size: AppStyle.fontBlurb, weight: .regular))
+                                Text(merStr)
+                                    .foregroundColor(infoColor)
+                                    .font(.system(size: AppStyle.fontTrain, weight: .regular))
+                            }
+                            Text(CaltrainService.trainType(trip.legs.first!.trainId))
+                                .foregroundColor(.appText)
+                                .font(.system(size: AppStyle.fontTrain, weight: .regular))
+                        }
+                    }
+                }
+            }
+            .frame(width: 190)
+            .offset(y: 8)
+        }
+        .contentShape(Circle())
+        .onTapGesture {
+            showTripList = true
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { value in
+                    let newShift = -Int((value.translation.height / rowHeight).rounded())
+                    let proposed = viewModel.offset + newShift
+                    if proposed >= 0 && proposed < viewModel.trips.count {
+                        dragShift = newShift
+                    }
+                }
+                .onEnded { _ in
+                    viewModel.setOffset(effectiveOffset)
+                    dragShift = 0
+                }
+        )
+        .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
+            blinkOn = (isSelectedDeparting || noTrainsAtAll) ? !blinkOn : true
+        }
     }
 }

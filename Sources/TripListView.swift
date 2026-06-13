@@ -1,5 +1,12 @@
 import SwiftUI
 
+private struct HeaderHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct TripListView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) private var dismiss
@@ -9,8 +16,10 @@ struct TripListView: View {
     @State private var suppressTap: Bool = false
     @State private var navigateToTrip: Trip? = nil
     @State private var timeColumnWidth: CGFloat = 0
+    @State private var headerHeight: CGFloat = 0
 
     private let rowHeight: CGFloat = 44
+    private let rowCountEstimateHeight: CGFloat = 36
 
     // Effective offset including live drag shift
     var effectiveOffset: Int {
@@ -124,10 +133,25 @@ struct TripListView: View {
             }
             .ignoresSafeArea()
 
+            // Header layer — fixed at top, measures its own height
             VStack(spacing: 0) {
                 header
-                tripList
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .preference(key: HeaderHeightKey.self, value: geo.size.height)
+                        }
+                    )
+                    .onPreferenceChange(HeaderHeightKey.self) { height in
+                        headerHeight = height
+                    }
+                Spacer()
             }
+
+            // Trip list — floats, top-aligned, padded below the header
+            tripList
+                .padding(.top, (headerHeight > 0 ? headerHeight : 140) + 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             NavigationLink(
                 destination: navigateToTrip.map { trip in
@@ -158,7 +182,7 @@ struct TripListView: View {
         }
     }
 
-    // Header: top inset, toolbar, back/origin/destination, status blurb
+    // Header: toolbar, back/origin/destination, status blurb
     private var header: some View {
         VStack(spacing: 0) {
             // toolbar — TripType (left), reset (optional, almost-right), swap (right)
@@ -241,7 +265,7 @@ struct TripListView: View {
     // Trip list: number of rows adapts to available height below the header
     private var tripList: some View {
         GeometryReader { proxy in
-            let maxRows = max(1, Int(proxy.size.height / rowHeight))
+            let maxRows = max(1, Int(proxy.size.height / rowCountEstimateHeight))
             let rowCount = min(maxRows, viewModel.trips.count)
 
             VStack(spacing: 0) {
@@ -266,6 +290,7 @@ struct TripListView: View {
                 }
                 Spacer(minLength: 0)
             }
+            .fixedSize(horizontal: false, vertical: true)
             .onPreferenceChange(TimeWidthKey.self) { width in
                 timeColumnWidth = width
             }
@@ -288,7 +313,6 @@ struct TripListView: View {
                         }
                     }
             )
-            .padding(.top, 8)
         }
     }
 }
