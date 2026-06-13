@@ -127,7 +127,6 @@ struct TripListView: View {
             VStack(spacing: 0) {
                 header
                 tripList
-                Spacer(minLength: 0)
             }
 
             NavigationLink(
@@ -243,7 +242,7 @@ struct TripListView: View {
     private var tripList: some View {
         GeometryReader { proxy in
             let maxRows = max(1, Int(proxy.size.height / rowHeight))
-            let rowCount = min(maxRows, max(viewModel.trips.count, 1))
+            let rowCount = min(maxRows, viewModel.trips.count)
 
             VStack(spacing: 0) {
                 ForEach(0..<rowCount, id: \.self) { slot in

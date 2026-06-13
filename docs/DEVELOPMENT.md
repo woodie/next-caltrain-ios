@@ -75,6 +75,25 @@ before `./build.sh` if you've added or removed files.
 `build.sh` wraps `xcodegen` + `xcodebuild ... | grep "error:"` + a clean
 simulator reinstall. `simulate.sh` installs and launches the app.
 
+## Viewing logs
+
+To stream debug logs from the running simulator app:
+
+```
+./simulate.sh -l
+```
+
+This captures `os_log` output from Swift code tagged with `[GoodTimes]`,
+`[TripViewModel]`, or `[Schedule]`. To add your own debug logs, use:
+
+```swift
+import os.log
+os_log("Your message here", log: OSLog.default, type: .debug)
+```
+
+The log predicate is configured in `simulate.sh` — edit it to capture
+different tags or add new ones.
+
 ## Quick reference
 
 | Task | Command |
@@ -84,3 +103,4 @@ simulator reinstall. `simulate.sh` installs and launches the app.
 | Run unit tests | `./test.sh` |
 | Lint | `swiftlint` |
 | Build + run in simulator | `./build.sh && ./simulate.sh` |
+| View debug logs | `./simulate.sh -l` |
