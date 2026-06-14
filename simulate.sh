@@ -40,5 +40,5 @@ if [ "$LOG" = true ]; then
    xcrun simctl spawn "$TARGET" log stream \
     --level debug \
     --style compact \
-    --predicate 'composedMessage CONTAINS "[GoodTimes]" OR composedMessage CONTAINS "[TripViewModel]" OR composedMessage CONTAINS "[Schedule]"'
+    --predicate 'composedMessage CONTAINS "[GoodTimes]" OR composedMessage CONTAINS "[TripViewModel]" OR composedMessage CONTAINS "[Schedule]" OR composedMessage CONTAINS "[TripList]"'
 fi

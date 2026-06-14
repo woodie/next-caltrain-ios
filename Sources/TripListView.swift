@@ -1,12 +1,5 @@
 import SwiftUI
 
-private struct HeaderHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
 struct TripListView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) private var dismiss
@@ -17,17 +10,24 @@ struct TripListView: View {
     @State private var navigateToTrip: Trip? = nil
     @State private var timeColumnWidth: CGFloat = 0
     @State private var headerHeight: CGFloat = 0
-
     private let rowHeight: CGFloat = 44
-    private let rowCountEstimateHeight: CGFloat = 36
+    private let listTopPad: CGFloat = 14
 
-    // Effective offset including live drag shift
+    var windowScene: UIWindowScene? {
+        UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+    }
+
+    var rowCount: Int {
+        guard headerHeight > 0, let window = windowScene?.windows.first else { return 1 }
+        let available = window.bounds.height - headerHeight - listTopPad
+        return min(max(1, Int(available / rowHeight)), viewModel.trips.count)
+    }
+
     var effectiveOffset: Int {
         let shifted = viewModel.offset + dragShift
         return max(0, min(shifted, viewModel.trips.count - 1))
     }
 
-    // All header values derived from effectiveOffset for live updates during drag
     var selectedTrip: Trip? {
         guard effectiveOffset < viewModel.trips.count else { return nil }
         return viewModel.trips[effectiveOffset]
@@ -63,12 +63,8 @@ struct TripListView: View {
 
     var statusText: String {
         if viewModel.trips.isEmpty { return "NO TRAINS" }
-        if isSelectedFuture {
-            return "\(viewModel.tomorrowScheduleType.label) Schedule"
-        }
-        if viewModel.swapped || isSelectedPast {
-            return "\(viewModel.scheduleType.label) Schedule"
-        }
+        if isSelectedFuture { return "\(viewModel.tomorrowScheduleType.label) Schedule" }
+        if viewModel.swapped || isSelectedPast { return "\(viewModel.scheduleType.label) Schedule" }
         if isSelectedDeparting { return "DEPARTING" }
         if let trip = selectedTrip {
             let c = viewModel.goodTimes.countdown(trip.depart)
@@ -78,14 +74,12 @@ struct TripListView: View {
     }
 
     var line1: String {
-        let o = viewModel.origin
-        let d = viewModel.destination
+        let o = viewModel.origin; let d = viewModel.destination
         return o.count + 3 >= d.count ? o : "\(o) to"
     }
 
     var line2: String {
-        let o = viewModel.origin
-        let d = viewModel.destination
+        let o = viewModel.origin; let d = viewModel.destination
         return o.count + 3 >= d.count ? "to \(d)" : d
     }
 
@@ -95,9 +89,7 @@ struct TripListView: View {
         return viewModel.trips[idx]
     }
 
-    func isNext(_ slot: Int) -> Bool {
-        return slot == 0 && !viewModel.swapped
-    }
+    func isNext(_ slot: Int) -> Bool { slot == 0 && !viewModel.swapped }
 
     func isInactive(_ slot: Int) -> Bool {
         if viewModel.swapped { return false }
@@ -114,9 +106,7 @@ struct TripListView: View {
         return viewModel.trips[idx].isFuture
     }
 
-    func isDepartingSlot(_ slot: Int) -> Bool {
-        return slot == 0 && isSelectedDeparting
-    }
+    func isDepartingSlot(_ slot: Int) -> Bool { slot == 0 && isSelectedDeparting }
 
     var body: some View {
         ZStack {
@@ -133,24 +123,15 @@ struct TripListView: View {
             }
             .ignoresSafeArea()
 
-            // Header layer — fixed at top, measures its own height
+            // Header layer — fixed at top
             VStack(spacing: 0) {
                 header
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(key: HeaderHeightKey.self, value: geo.size.height)
-                        }
-                    )
-                    .onPreferenceChange(HeaderHeightKey.self) { height in
-                        headerHeight = height
-                    }
                 Spacer()
             }
 
-            // Trip list — floats, top-aligned, padded below the header
+            // Trip list — floats above, padded below the header
             tripList
-                .padding(.top, (headerHeight > 0 ? headerHeight : 140) + 14)
+                .padding(.top, (headerHeight > 0 ? headerHeight : 140) + listTopPad)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             NavigationLink(
@@ -168,9 +149,7 @@ struct TripListView: View {
                     get: { navigateToTrip != nil },
                     set: { if !$0 { navigateToTrip = nil } }
                 )
-            ) {
-                EmptyView()
-            }
+            ) { EmptyView() }
 
             NavigationLink(destination: StationSelectionView(viewModel: viewModel), isActive: $showStationSelection) {
                 EmptyView()
@@ -182,31 +161,22 @@ struct TripListView: View {
         }
     }
 
-    // Header: toolbar, back/origin/destination, status blurb
     private var header: some View {
         VStack(spacing: 0) {
-            // toolbar — TripType (left), reset (optional, almost-right), swap (right)
             HStack {
                 Text(serviceTypeLabel)
                     .foregroundColor(.appText)
                     .font(.system(size: AppStyle.fontStatusBar, weight: .regular))
-
                 Spacer()
-
                 if viewModel.hasManualSelection {
-                    Button {
-                        viewModel.resetToNext()
-                    } label: {
+                    Button { viewModel.resetToNext() } label: {
                         Image(systemName: "arrow.counterclockwise")
                             .foregroundColor(.appText)
                             .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                             .background(Circle().fill(Color.iconCircleBackground))
                     }
                 }
-
-                Button {
-                    viewModel.swapStations()
-                } label: {
+                Button { viewModel.swapStations() } label: {
                     Image(systemName: "arrow.left.arrow.right")
                         .foregroundColor(.appText)
                         .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
@@ -216,19 +186,14 @@ struct TripListView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
 
-            // back button (left) + origin / destination (centered)
             HStack {
-                Button {
-                    dismiss()
-                } label: {
+                Button { dismiss() } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.appText)
                         .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
                         .background(Circle().fill(Color.iconCircleBackground))
                 }
-
                 Spacer()
-
                 VStack(spacing: 2) {
                     Text(line1)
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
@@ -239,17 +204,13 @@ struct TripListView: View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { showStationSelection = true }
-
                 Spacer()
-
-                // balance the back button's width so the station text stays centered
                 Color.clear
                     .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
 
-            // blurb — updates live during drag
             Text(statusText)
                 .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                 .foregroundColor(statusColor)
@@ -260,59 +221,54 @@ struct TripListView: View {
                 .fixedSize(horizontal: true, vertical: false)
                 .onTapGesture { viewModel.cycleSchedule() }
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { headerHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { headerHeight = $0 }
+            }
+        )
     }
 
-    // Trip list: number of rows adapts to available height below the header
     private var tripList: some View {
-        GeometryReader { proxy in
-            let maxRows = max(1, Int(proxy.size.height / rowCountEstimateHeight))
-            let rowCount = min(maxRows, viewModel.trips.count)
-
-            VStack(spacing: 0) {
-                ForEach(0..<rowCount, id: \.self) { slot in
-                    if let trip = tripAt(slot) {
-                        TripRow(
-                            trip: trip,
-                            isNext: isNext(slot),
-                            isInactive: isInactive(slot),
-                            isFuture: isFuture(slot),
-                            isDeparting: isDepartingSlot(slot),
-                            swapped: viewModel.swapped,
-                            timeColumnWidth: timeColumnWidth
-                        )
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if !suppressTap {
-                                navigateToTrip = trip
-                            }
-                        }
+        return VStack(spacing: 0) {
+            ForEach(0..<rowCount, id: \.self) { slot in
+                if let trip = tripAt(slot) {
+                    TripRow(
+                        trip: trip,
+                        isNext: isNext(slot),
+                        isInactive: isInactive(slot),
+                        isFuture: isFuture(slot),
+                        isDeparting: isDepartingSlot(slot),
+                        swapped: viewModel.swapped,
+                        timeColumnWidth: timeColumnWidth
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if !suppressTap { navigateToTrip = trip }
                     }
                 }
-                Spacer(minLength: 0)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .onPreferenceChange(TimeWidthKey.self) { width in
-                timeColumnWidth = width
-            }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 10)
-                    .onChanged { value in
-                        suppressTap = true
-                        let newShift = -Int((value.translation.height / rowHeight).rounded())
-                        let proposed = viewModel.offset + newShift
-                        if proposed >= 0 && proposed < viewModel.trips.count {
-                            dragShift = newShift
-                        }
-                    }
-                    .onEnded { _ in
-                        viewModel.setOffset(effectiveOffset)
-                        dragShift = 0
-                        // Allow taps again shortly after drag ends
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            suppressTap = false
-                        }
-                    }
-            )
+            Spacer(minLength: 0)
         }
+        .onPreferenceChange(TimeWidthKey.self) { timeColumnWidth = $0 }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { value in
+                    suppressTap = true
+                    let newShift = -Int((value.translation.height / rowHeight).rounded())
+                    let proposed = viewModel.offset + newShift
+                    if proposed >= 0 && proposed < viewModel.trips.count {
+                        dragShift = newShift
+                    }
+                }
+                .onEnded { _ in
+                    viewModel.setOffset(effectiveOffset)
+                    dragShift = 0
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        suppressTap = false
+                    }
+                }
+        )
     }
 }

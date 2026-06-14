@@ -80,19 +80,25 @@ simulator reinstall. `simulate.sh` installs and launches the app.
 To stream debug logs from the running simulator app:
 
 ```
-./simulate.sh -l
+./simulate.sh --log
 ```
 
-This captures `os_log` output from Swift code tagged with `[GoodTimes]`,
-`[TripViewModel]`, or `[Schedule]`. To add your own debug logs, use:
+This captures `os_log` output filtered by tag. To add debug logs in Swift:
 
 ```swift
 import os.log
-os_log("Your message here", log: OSLog.default, type: .debug)
+os_log("[MyTag] value=%.1f", log: OSLog(subsystem: "com.netpress.NextCaltrain", category: "MyTag"), type: .debug, someValue)
 ```
 
-The log predicate is configured in `simulate.sh` — edit it to capture
-different tags or add new ones.
+The bracketed tag (e.g. `[MyTag]`) must also be added to the predicate in
+`simulate.sh` — look for the `composedMessage CONTAINS` line and add:
+
+```
+OR composedMessage CONTAINS "[MyTag]"
+```
+
+**Important**: `print()` goes to stdout and is NOT captured by `--log`. Always
+use `os_log` with a subsystem for logs you want to see in the terminal.
 
 ## Quick reference
 
@@ -103,4 +109,4 @@ different tags or add new ones.
 | Run unit tests | `./test.sh` |
 | Lint | `swiftlint` |
 | Build + run in simulator | `./build.sh && ./simulate.sh` |
-| View debug logs | `./simulate.sh -l` |
+| View debug logs | `./simulate.sh --log` |

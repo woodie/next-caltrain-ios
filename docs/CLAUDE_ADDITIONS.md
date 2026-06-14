@@ -1,74 +1,152 @@
-# Working with Claude on Next Caltrain (iOS) — Additions
+# CLAUDE_ADDITIONS.md — layout section replacement
 
-> This document is provided to a new Claude session to describe the
-> workflow and speed up development. On reading it, respond with: "OK,
-> sounds like we're ready to work on this app" and wait for the next
-> instruction.
+Replace the existing "Layout-jump lesson" and "Lessons from layout
+debugging" sections with the following. Other sections (Testing, Light/dark
+mode, South County, Privacy policy) are unaffected.
 
-## Testing
+---
 
-- Tests use Quick/Nimble in an RSpec-style `describe`/`context`/`it`
-  format, living in `Tests/`. Run with `./test.sh`, which runs `xcodegen
-  generate` automatically (so new spec files are picked up) and pipes
-  `xcodebuild test` through `xcbeautify` for doc-formatted (`-fd`-style)
-  output.
-- `Tests/SpecFixtures.swift` is a factory/builder for `Schedule` fixtures —
-  a tiny 16-station "railroad" (SF / San Jose Diridon / Morgan Hill / Gilroy
-  + filler stops, padded to 16 entries because `TripViewModel.init` defaults
-  to `stopAM = 15` and will crash on out-of-bounds with smaller fixtures).
-  Use `SpecFixtures.schedule { $0.weekday(electric: .normal, diesel:
-  .normal); ... }` to build scenario-specific schedules (e.g. "no service
-  tomorrow", "modified holiday schedule").
-- `.swiftlint.yml` relaxes `function_body_length`, `identifier_name`
-  (allows `gt`), and `static_over_final_class` for spec files — don't fight
-  these in Quick specs.
-- See `docs/DEVELOPMENT.md` for the full command reference.
+## Layout patterns (two distinct cases — don't mix them)
 
-## Layout-jump lesson (generalizes the earlier safe-area lesson)
+There are two different layout problems in this app, with two different
+correct solutions. Mixing them up is the most common source of regressions.
 
-- Any pushed view (`NavigationLink` destination) that shows the *default*
-  iOS nav bar (`.navigationBarTitleDisplayMode`, no `.navigationBarHidden`)
-  can render flush-under-the-status-bar on first frame, then jump down once
-  the safe-area inset resolves — even if it "looks fine" in a screenshot
-  taken after the jump.
-- Fix: every pushed view should follow the same structure as
-  HomeView/TripListView — `.navigationBarHidden(true)`, with a toolbar
-  `HStack` (back button + title/content) as the literal first child of the
-  outer `VStack(spacing: 0)`, `.padding(.top, 8)`. `TripDetailView` was the
-  last holdout and is now fixed this way.
+### 1. Pushed views (`NavigationLink` destinations) — safe-area jump fix
 
-## Light/dark mode
+Any pushed view that shows the *default* iOS nav bar
+(`.navigationBarTitleDisplayMode`, no `.navigationBarHidden`) can render
+flush-under-the-status-bar on first frame, then jump down once the safe-area
+inset resolves — even if it "looks fine" in a screenshot taken after the
+jump.
 
-- `AppStyle.swift` colors are now adaptive via a `Color(light:dark:)` init
-  using `UIColor { traits in ... }`. This "just works" — no
-  `.preferredColorScheme()` override anywhere, system setting is followed
-  automatically.
-- Current light-mode values: `calPast` = pure blue `#00F`, `calArrive` =
-  `#009e0b` (green), `calDepart` = mustard `#CC9E12`. Dark-mode values
-  unchanged (neon `#0AF`/`#0F0`/`#FF0`).
-- `appBackground`/`appText` are the adaptive black↔white / white↔black
-  pair used everywhere `Color.black`/`Color(.white)` used to be hardcoded.
-- Two remaining hardcoded (non-adaptive) colors, left as-is intentionally:
-  the `Color(white: 0.5)` top gradient (HomeView + TripListView) and
-  `Color.gray` divider in StationSelectionView — both looked fine in light
-  mode when checked.
+**Fix**: every pushed view follows the same structure as
+HomeView/TripListView's *toolbar* — `.navigationBarHidden(true)`, with a
+toolbar `HStack` (back button + title/content) as the literal first child of
+the outer `VStack(spacing: 0)`, plain `.padding(.top, 8)`. `TripDetailView`
+is fixed this way.
 
-## South County "no service tomorrow" behavior (intentional, not a bug)
+For this specific problem: **no `GeometryReader`, no `.safeAreaInset`, no
+extra wrapper views, no `.frame(maxHeight:...)`**. Matching the structure
+exactly (not just the padding values) is what fixes it — partial matches can
+still misbehave. `.safeAreaInset(edge: .top)`, `UIApplication`-derived status
+bar height, and large fixed padding values either don't apply, get clipped,
+or cause the whole view to center/bottom-align unexpectedly.
 
-- South County (Gilroy-area) has weekday-only service in the real schedule.
-  When today is the last day with trips and tomorrow has none (e.g.
-  Friday→Saturday), `TripViewModel.clampedOffset` selects the **first**
-  trip of today (not the last) so the full day's schedule stays visible —
-  even if every trip has already departed. The selected trip gets a gray
-  ring (`isNext && isInactive` → `.calSwapped`), not green.
-- This is deliberate: South County riders are few enough that "NO TRAINS"
-  after the last train departs (but before midnight) would hide useful
-  info from someone still riding that train and checking later stops.
-- Do not try to extend the rollover lookahead to find Monday's trains during
-  this gap — explicitly decided against, see session history if revisiting.
+### 2. Root-view content layout (HomeView, TripListView) — floating overlay pattern
 
-## Privacy policy
+This is a *different* problem: making the toolbar/header immune to content
+size changes, and centering/positioning the main content independently of
+the toolbar. The constraints from case 1 do **not** apply here —
+`GeometryReader` is the correct tool for this case.
 
-- Hosted at `https://next-caltrain-pwa.appspot.com/privacy.html` (deployed
-  via `npm run deploy` from `next-caltrain-pwa/webapp/`). Contact:
-  privacy@netpress.com. Update "Last updated" date if the policy changes.
+**Pattern**: in the root `ZStack`, give the toolbar/header its own
+top-anchored layer, and let the main content float as a separate sibling
+layer sized against the full screen:
+
+```swift
+ZStack {
+    Color.appBackground.ignoresSafeArea()
+
+    // Toolbar/header — own layer, top-anchored, unaffected by content
+    VStack(spacing: 0) {
+        toolbar
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+        Spacer()
+    }
+
+    // Main content — floats, sized against the full screen
+    mainContent
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center) // or .top
+}
+```
+
+- **HomeView**: `mainContent` is the circle, with `alignment: .center` — it
+  centers on the whole screen regardless of toolbar height.
+- **TripListView**: `mainContent` is the trip list, with `alignment: .top`,
+  padded down by the header's measured height (see below) so it sits flush
+  below the header without overlapping.
+
+#### Measuring header height for row count (TripListView)
+
+TripListView needs to know how many trip rows fit below the header. The
+correct approach is:
+
+1. Measure `headerHeight` via a `GeometryReader` in the header's `.background`,
+   using both `.onAppear` and `.onChange(of: geo.size.height)`.
+2. Read `window.bounds.height` directly from the `UIWindowScene` — **not**
+   `UIScreen.main.bounds.height` (which doesn't rotate) and **not** a
+   `GeometryReader` on the ZStack (which gets compressed by the row list via
+   SwiftUI's layout feedback loop).
+3. Compute available height as `window.bounds.height - headerHeight - listTopPad`.
+
+```swift
+var windowScene: UIWindowScene? {
+    UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+}
+
+var rowCount: Int {
+    guard headerHeight > 0, let window = windowScene?.windows.first else { return 1 }
+    let available = window.bounds.height - headerHeight - listTopPad
+    return min(max(1, Int(available / rowHeight)), viewModel.trips.count)
+}
+```
+
+**Why not a GeometryReader on the ZStack?** ZStack children influence each
+other's sizes in SwiftUI's layout pass. A `GeometryReader` placed as a ZStack
+sibling of the row list gets compressed as the row list grows, creating a
+feedback loop that causes `rowCount` to oscillate downward. Using
+`window.bounds.height` bypasses SwiftUI layout entirely and is immune to
+this.
+
+**Why not `UIScreen.main.bounds`?** On iOS 16+, `UIScreen.main.bounds`
+returns portrait dimensions regardless of orientation. `window.bounds` rotates
+correctly with the device.
+
+#### Row count / overflow (TripListView)
+
+- Use `Int(available / rowHeight)` with no `+1` fudge factor — the
+  measurement is accurate enough that flooring is correct.
+- Let the list use a `Spacer(minLength: 0)` at the bottom so short lists
+  don't stretch rows.
+
+---
+
+## Logging
+
+Swift `print()` goes to stdout and is **not** captured by `xcrun simctl spawn log stream`.
+Use `os_log` with a subsystem for logs that need to appear in both Xcode and
+the `--log` flag of `simulate.sh`:
+
+```swift
+import os.log
+
+os_log("[TripList] windowHeight=%.1f rowCount=%d",
+       log: OSLog(subsystem: "com.netpress.NextCaltrain", category: "TripList"),
+       type: .debug,
+       wh, rc)
+```
+
+The `simulate.sh --log` predicate filters on `composedMessage CONTAINS "[Tag]"`,
+so the bracketed tag in the format string is what makes it visible. Add new
+tags to the predicate in `simulate.sh` when adding new log sites.
+
+---
+
+## What NOT to do (superseded approaches)
+
+- **Don't** use `.safeAreaInset(edge: .top)` to pin the toolbar on
+  HomeView/TripListView. It was tried in an earlier session and abandoned —
+  it fights with the floating-overlay pattern above and produced incorrect
+  row counts and centering.
+- **Don't** center the circle/content using `VStack { Spacer(); content;
+  Spacer() }` nested inside the toolbar's VStack — toolbar height affects the
+  Spacer distribution, so centering is off by the toolbar's height. Use the
+  floating-overlay `.frame(maxWidth: .infinity, maxHeight: .infinity,
+  alignment: .center)` pattern instead.
+- **Don't** use a `GeometryReader` on the ZStack to measure available height
+  for row count — ZStack layout feedback compresses it as rows render.
+- **Don't** use `UIScreen.main.bounds.height` for orientation-aware height —
+  it doesn't rotate on iOS 16+. Use `window.bounds.height` instead.
+- **Don't** use `print()` for logs you want to see via `simulate.sh --log` —
+  use `os_log` with a subsystem instead.
